@@ -29,15 +29,9 @@ const Login = () => {
       auth().signInWithCredential(googleCredential);
       auth().onAuthStateChanged(user => {
         if (user) {
-          // setAuthenticated(true);
-          console.log('USER AUTH SUCCESSFULL');
           navigateToHome();
-        } else {
-          // setAuthenticated(false);
-          console.log('USER NOT AUTH!!');
         }
       });
-      // navigateToHome();
     } catch (error) {
       console.log('ERROR ::: getCredentialsCurrentUser() : ', error);
     }

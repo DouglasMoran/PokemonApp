@@ -1,4 +1,5 @@
 import {axiosApi} from '@http';
+import axios from 'axios';
 
 export const getPokemons = () => {
   return new Promise(async (resolve, reject) => {
@@ -15,7 +16,6 @@ export const getPokemons = () => {
 export const getPokemonsRegions = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      // https://pokeapi.co/api/v2/region/{id or name}/
       let pokemosRegionsResults = await axiosApi.get('/region');
       resolve({regions: pokemosRegionsResults});
     } catch (error) {
@@ -28,10 +28,25 @@ export const getPokemonsRegions = () => {
   });
 };
 
+export const getPokemonLocationsArea = () => {
+  try {
+    return new Promise(async (resolve, reject) => {
+      let locationsAreResult = await axiosApi.get('/location-area?limit=2');
+      let _locationsAreas = locationsAreResult.data.results;
+      let locationsUrls = _locationsAreas.map(location => location.url);
+      resolve({locationsUrls: locationsUrls});
+    });
+  } catch (error) {
+    reject(error);
+    console.log('ERROR : getPokemonLocationsArea() ::: ', error);
+  }
+
+};
+
 export const getPokemonLocations = () => {
   try {
     const locationsGeneral = new Promise(async (resolve, reject) => {
-      let pokemonLocationResults = await axiosApi.get('/location?limit=3');
+      let pokemonLocationResults = await axiosApi.get('/location?limit=2');
       resolve({locations: pokemonLocationResults});
     });
 

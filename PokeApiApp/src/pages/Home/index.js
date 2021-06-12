@@ -29,7 +29,7 @@ const Home = ({navigation}) => {
       <View style={Style.container}>
         <TouchableRipple
           onPress={() => {
-            navigation.navigate('Pokemons', {regionUrl: item.url});
+            navigation.navigate('Locations', {regionUrl: item.url});
           }}
           rippleColor={Colors.BLUE_A200}>
           <View>
