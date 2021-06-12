@@ -31,7 +31,7 @@ export const getPokemonsRegions = () => {
 export const getPokemonLocationsArea = () => {
   try {
     return new Promise(async (resolve, reject) => {
-      let locationsAreResult = await axiosApi.get('/location-area?limit=2');
+      let locationsAreResult = await axiosApi.get('/location-area?limit=70');
       let _locationsAreas = locationsAreResult.data.results;
       let locationsUrls = _locationsAreas.map(location => location.url);
       resolve({locationsUrls: locationsUrls});

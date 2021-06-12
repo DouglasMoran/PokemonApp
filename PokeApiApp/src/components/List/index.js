@@ -15,6 +15,7 @@ const Locations = ({route, navigation}) => {
 
   useEffect(() => {
     getLocationsAreas();
+    console.log('AREAS IS ::: ', locationsAreas);
   }, []);
 
   const getLocationsAreas = async () => {
@@ -32,8 +33,10 @@ const Locations = ({route, navigation}) => {
   const getAreasRegion = async urls => {
     try {
       let responseLocationsAreas = await getAreasLocations(urls);
-      console.log('RESPONSE SUCCESSFULL THANKS, ', responseLocationsAreas);
-      console.log('DATA RESPONSE ::: ', responseLocationsAreas.dataResponse)
+      // console.log('DATA RESPONSE ::: ', responseLocationsAreas.dataResponse)
+      let locationsList = responseLocationsAreas.dataResponse.map((locationData) => locationData.data.location.name);
+      console.log('LOCATIONS OBTAINED FILTER ::: ', locationsList);
+      setLocationsAreas(locationsList);
     } catch (error) {
       console.log('ERROR ::: getAreasRegion() : ', error);
     }
@@ -63,8 +66,7 @@ const Locations = ({route, navigation}) => {
         <TouchableRipple rippleColor={Colors.BLUE_A200}>
           <View>
             <Card StyleCustom={CardStylesCustom}>
-              <Text style={Style.regionName}>{item.name}</Text>
-              <Text>{item.url}</Text>
+              <Text style={Style.regionName}>{item}</Text>
             </Card>
           </View>
         </TouchableRipple>
@@ -74,13 +76,12 @@ const Locations = ({route, navigation}) => {
 
   return (
     <View style={Style.container}>
-      <Text>{locationsAreas.length}</Text>
       <FlatList
         style={Style.regionList}
-        data={pokemonLocations}
+        data={locationsAreas}
         renderItem={renderItemLocation}
         showsVerticalScrollIndicator={false}
-        keyExtractor={item => getId(item.url)}
+        // keyExtractor={item => }
       />
     </View>
   );
