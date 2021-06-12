@@ -15,13 +15,13 @@ const Locations = ({route, navigation}) => {
 
   useEffect(() => {
     getLocationsAreas();
-    console.log('LOCATIONS AREAS ::: ', locationsAreas.length);
   }, []);
 
   const getLocationsAreas = async () => {
     try {
       let pokemonLocationsResult = await getPokemonLocationsArea();
-      // console.log('************************************************');
+      console.log('URLS ARRAY : ', pokemonLocationsResult.locationsUrls);
+      console.log('************************************************');
       setUrlsLocations(pokemonLocationsResult.locationsUrls);
       getAreasRegion(pokemonLocationsResult.locationsUrls);
     } catch (error) {
@@ -29,24 +29,26 @@ const Locations = ({route, navigation}) => {
     }
   };
 
-  const getAreasRegion = async (urls) => {
+  const getAreasRegion = async urls => {
     try {
       let responseLocationsAreas = await getAreasLocations(urls);
-      console.log('RESPONSE SUCCESSFULL THANKS, ', responseLocationsAreas)
-      console.log('LOCATION NAME: ', responseLocationsAreas.areasResponse.location.name)
-      console.log('LOCATION AREA NAME: ', responseLocationsAreas.areasResponse.name);
-      console.log('LOCATION POKEMONS ENCOUNTER: ', responseLocationsAreas.areasResponse.pokemon_encounters);
+      console.log('RESPONSE SUCCESSFULL THANKS, ', responseLocationsAreas);
+      console.log('DATA RESPONSE ::: ', responseLocationsAreas.dataResponse)
     } catch (error) {
       console.log('ERROR ::: getAreasRegion() : ', error);
     }
-  }
+  };
 
   const getAreasLocations = async urls => {
     return new Promise((resolve, reject) => {
       try {
-        urls.map(async location => {
+        var listLocationsAreasTmp = [];
+        urls.map(async (location, index) => {
           let response = await axios.get(location);
-          resolve({areasResponse: response.data});
+          listLocationsAreasTmp.push(response);
+          if (urls.length - 1 === index) {
+            resolve({dataResponse: listLocationsAreasTmp});
+          }
         });
       } catch (error) {
         console.log('ERROR ::: getAreasLocations() : ', error);
