@@ -1,35 +1,62 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList} from 'react-native';
 import {teamsReference} from '@config/firebase_config';
+import auth from '@react-native-firebase/auth';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
 
 const Dashboard = () => {
   const [teams, setTeams] = useState([]);
+  const [listGenral, setListGeneral] = useState([]);
 
   useEffect(() => {
-    // getTeams();
+    getDataTeamsGeneral();
+    setTeamsOfCurrentUser();
   }, []);
 
-  const getTeams = async () => {
-    try {
-      await teamsReference.on('value', snapshot => {
-        const dataResponseTeams = snapshot.val();
-        console.log('ID TEAM ::: ', dataResponseTeams.child('id').val());
-        setTeams(dataResponseTeams);
-        console.log('I WAIT THE TEAMS LIST ::: ', dataResponseTeams);
+
+  const setTeamsOfCurrentUser = () => {
+    if (listGenral) {
+      let listTeamsTmp = [];
+      listGenral.map(teams => {
+        let responseDataTeam = Object.values(teams);
+        responseDataTeam.map(item => {
+          listTeamsTmp.push(item.team);
+          // console.log('TEAM ::: ', item.team.name)
+        });
       });
+      // console.log('TEAMS ::: ', listTeamsTmp)
+      setTeams(listTeamsTmp);
+    }
+  }
+
+  const getDataTeamsGeneral = async () => {
+    let userId = auth().currentUser.uid;
+    try {
+      var listTmp = [];
+      await teamsReference.on('value', snapshot => {
+        snapshot.forEach(childSnapshot => {
+          var childKey = childSnapshot.key;
+          if (childKey === userId) {
+            listTmp.push(childSnapshot.child('teams').val());
+          }
+        });
+      });
+
+      setListGeneral(listTmp);
     } catch (error) {
       console.log('ERROR ::: getTeams(): ', error);
     }
   };
 
-  const renderCardTeam = () => {
+  const renderCardTeam = ({item}) => {
+    console.log('****************************')
+    console.log('TEAM ::: ', item.name)
     return (
       <View>
         <Card StyleCustom={CardStylesCustom}>
           <View>
-            <Text>Team 1</Text>
+            <Text>{item.name}</Text>
           </View>
         </Card>
       </View>
