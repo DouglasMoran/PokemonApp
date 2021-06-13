@@ -4,6 +4,9 @@ import {Button, Input} from 'react-native-elements';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
 import axios from 'axios';
+import database from '@react-native-firebase/database';
+import {teamsReference} from '@config/firebase_config';
+import auth from '@react-native-firebase/auth';
 
 const Pokemons = ({route, navigation}) => {
   const [location, setLocation] = useState({});
@@ -26,7 +29,7 @@ const Pokemons = ({route, navigation}) => {
     let urlsPokemons = new Promise(async (resolve, reject) => {
       try {
         let pokemons = await location.pokemon_encounters;
-        let pokemonsUrls = pokemons.map(pokemon => pokemon.pokemon.url);
+        let pokemonsUrls = await pokemons.map(pokemon => pokemon.pokemon.url);
         resolve(pokemonsUrls);
       } catch (error) {
         reject(error);
@@ -70,11 +73,40 @@ const Pokemons = ({route, navigation}) => {
     });
   };
 
-  const dataToUpload = () => {
-    console.log('NAME ::: ', nameTeam);
-    console.log('TYPE ::: ', typeTeam);
-    console.log('DESCRIPTION ::: ', descriptionTeam);
-    console.log('POKEMONS SELECTED ::: ', pokemonsSelectedList.length);
+  const uploadTeam = async () => {
+    try {
+      let user = await auth().currentUser;
+
+      let team = {
+        id: Date.now(),
+        name: nameTeam,
+        type: typeTeam,
+        description: descriptionTeam,
+        pokemons: pokemonsSelectedList,
+        dataUser: {
+          name: user.displayName,
+          email: user.email,
+        },
+      };
+
+      teamsReference
+        .set({
+          team,
+        })
+        .then(res => {
+          console.log('Data uploaded!!  ', res);
+        });
+      // const newTeam = database().ref()
+      // const newTeamRef = database().ref('teams').set({
+      //   name: 'Test',
+      //   type: 'upload'
+      // }).then(() => {
+      //   console.log('Data uploaded!!')
+      //   console.log('New TEAM key:', newTeamRef.key);
+      // });
+    } catch (error) {
+      console.log('ERROR EXECUTING ::: dataToUpload(): ', error);
+    }
   };
 
   const handlerSelectPokemon = currentPokemon => {
@@ -83,12 +115,11 @@ const Pokemons = ({route, navigation}) => {
     pokemonsSelectedList.push(currentPokemon);
   };
 
-  const handlerShowBottomSheet = () => {
+  const handlerShowBottomSheet = async () => {
     //HERE EXECUTE UPLOAD DATA TO FIREBASE AND FIRESTORE
     if (isBottomSheetShow) {
       setIsBottomSheetShow(false);
       setIsCreatingTeam(false);
-      dataToUpload();
     } else {
       setIsBottomSheetShow(true);
     }
@@ -205,7 +236,10 @@ const Pokemons = ({route, navigation}) => {
             </View>
 
             <Button
-              onPress={() => handlerShowBottomSheet()}
+              onPress={() => {
+                handlerShowBottomSheet();
+                uploadTeam();
+              }}
               title="Create"
               buttonStyle={{width: 200}}
             />
