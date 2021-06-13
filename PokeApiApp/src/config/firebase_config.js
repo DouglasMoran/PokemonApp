@@ -18,4 +18,4 @@ const app = firebase.initializeApp(firebaseConfig);
 
 const database = firebase.database(app);
 
-export const teamsReference = database.ref('teams');
+export const teamsReference = database.ref('users-registered');

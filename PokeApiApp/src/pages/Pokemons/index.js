@@ -91,8 +91,10 @@ const Pokemons = ({route, navigation}) => {
       };
 
       teamsReference
+        .child(user.uid)
+        .child('teams')
         .child(team.id)
-        .set({data: team})
+        .set({team})
         .then(res => {
           console.log('Data uploaded SUCCESSFUL!!');
           setLoading(false);
@@ -110,13 +112,14 @@ const Pokemons = ({route, navigation}) => {
 
   const handlerShowBottomSheet = async () => {
     //HERE EXECUTE UPLOAD DATA TO FIREBASE AND FIRESTORE
-    if (isBottomSheetShow) {
-      uploadTeam();
-      setIsBottomSheetShow(false);
+    if (!loading) {
+      if (isBottomSheetShow) {
+        setIsBottomSheetShow(false);
 
-      setIsCreatingTeam(false);
-    } else {
-      setIsBottomSheetShow(true);
+        setIsCreatingTeam(false);
+      } else {
+        setIsBottomSheetShow(true);
+      }
     }
   };
 
@@ -233,6 +236,7 @@ const Pokemons = ({route, navigation}) => {
             <Button
               loading={loading}
               onPress={() => {
+                uploadTeam();
                 handlerShowBottomSheet();
               }}
               title="Create"
