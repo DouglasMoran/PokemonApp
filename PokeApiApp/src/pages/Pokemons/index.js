@@ -4,7 +4,6 @@ import {Button, Input} from 'react-native-elements';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
 import axios from 'axios';
-import database from '@react-native-firebase/database';
 import {teamsReference} from '@config/firebase_config';
 import auth from '@react-native-firebase/auth';
 
@@ -19,11 +18,12 @@ const Pokemons = ({route, navigation}) => {
   const [nameTeam, setNameTeam] = useState('');
   const [typeTeam, setTypeTeam] = useState('');
   const [descriptionTeam, setDescriptionTeam] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLocation(route.params?.location);
     getPokemons();
-  }, [count, pokemonsSelectedList]);
+  }, [count, loading]);
 
   const getPokemons = async () => {
     let urlsPokemons = new Promise(async (resolve, reject) => {
@@ -75,6 +75,7 @@ const Pokemons = ({route, navigation}) => {
 
   const uploadTeam = async () => {
     try {
+      setLoading(true);
       let user = await auth().currentUser;
 
       let team = {
@@ -90,20 +91,12 @@ const Pokemons = ({route, navigation}) => {
       };
 
       teamsReference
-        .set({
-          team,
-        })
+        .child(team.id)
+        .set({data: team})
         .then(res => {
-          console.log('Data uploaded!!  ', res);
+          console.log('Data uploaded SUCCESSFUL!!');
+          setLoading(false);
         });
-      // const newTeam = database().ref()
-      // const newTeamRef = database().ref('teams').set({
-      //   name: 'Test',
-      //   type: 'upload'
-      // }).then(() => {
-      //   console.log('Data uploaded!!')
-      //   console.log('New TEAM key:', newTeamRef.key);
-      // });
     } catch (error) {
       console.log('ERROR EXECUTING ::: dataToUpload(): ', error);
     }
@@ -118,7 +111,9 @@ const Pokemons = ({route, navigation}) => {
   const handlerShowBottomSheet = async () => {
     //HERE EXECUTE UPLOAD DATA TO FIREBASE AND FIRESTORE
     if (isBottomSheetShow) {
+      uploadTeam();
       setIsBottomSheetShow(false);
+
       setIsCreatingTeam(false);
     } else {
       setIsBottomSheetShow(true);
@@ -236,9 +231,9 @@ const Pokemons = ({route, navigation}) => {
             </View>
 
             <Button
+              loading={loading}
               onPress={() => {
                 handlerShowBottomSheet();
-                uploadTeam();
               }}
               title="Create"
               buttonStyle={{width: 200}}
