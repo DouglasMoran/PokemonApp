@@ -22,54 +22,77 @@ const Locations = ({route, navigation}) => {
     useState([]);
 
   useEffect(() => {
-    getLocationsAreas();
-    getLocations();
-
-    // if (locationsAreas) {
-    //   console.log('IN - LOCATIONS ::: ', locations.length);
-    //   console.log('IN - LOCATIONS-AREAS ::: ', locationsAreas.length);
-    //   // let locsAreas = locationsAreas.filter((locationArea) => locationArea.name === locations.data.name);
-    //   // console.log('LOCS AREAS ::: ', locations);
-    //   let listLocsTmp = [];
-    //   locationsAreas.map(locationArea => {
-    //     locations.map(location => {
-    //       if (locationArea.name === location.name) {
-    //         listLocsTmp.push(locationArea);
-    //       }
-    //     });
-    //   });
-    //   console.log('LOCATIONS-AREAS LIST ::: ', locationsAreas.length);
-    //   console.log('LOCATIONS LIST ::: ', locations.length);
-    //   console.log('MATCH LIST ::: ', listLocsTmp.length);
-    // }
+    // getLocationsAreas();
+    // getLocations();
+    getDataOfLists();
   }, []);
 
+  const getDataOfLists = async () => {
+    let locationsAreas = new Promise(async (resolve, reject) => {
+      try {
+        let firstResponse = await getLocationsAreas();
+        resolve({dataLocationsAreas: firstResponse});
+      } catch (error) {
+        console.log('ERROR ::: getDataOfList() : ', error);
+        reject(error);
+      }
+    });
+    locationsAreas.then(res => {
+
+      let locations = new Promise(async (resolve, reject) => {
+        try {
+          let secondLoc = await getLocations();
+          resolve(secondLoc);
+        } catch (error) {
+          reject(error);
+        }
+      });
+      locations.then(response => {
+        var listTmp = [];
+        res.dataLocationsAreas.data.map((locationArea) => {
+          response.dataResponse.dataLocations.map((location) => {
+            if (locationArea.data.location.name === location.data.name) {
+              if (location.data.region.name === route.params?.regionName) {
+                listTmp.push(locationArea.data);
+              }
+            }
+          });
+        });
+        let filteredArray = [...new Set(listTmp)];
+        setLocationsAreas(filteredArray);
+      });
+    });
+  };
+
   const getLocationsAreas = async () => {
-    try {
-      let pokemonLocationsResult = await getPokemonLocationsArea();
-      getAreasRegion(pokemonLocationsResult.locationsUrls);
-    } catch (error) {
-      console.log('ERROR ::: getLocations() : ', error);
-    }
+    return new Promise(async (resolve, reject) => {
+      try {
+        let pokemonLocationsResult = await getPokemonLocationsArea();
+        let res = await getAreasRegion(pokemonLocationsResult.locationsUrls);
+        resolve({data: res});
+      } catch (error) {
+        console.log('ERROR ::: getLocations() : ', error);
+        reject(error);
+      }
+    });
   };
 
   const getAreasRegion = async urls => {
-    try {
-      let responseLocationsAreas = await getAreasOfLocationsAreas(urls);
-      let listLocationsTmp = responseLocationsAreas.dataResponse;
-      
-      let locations = listLocationsTmp.map(location => {
-        location.data.location
-        console.log('LIST AREAS ::: ', location.data)
-      });
-      setLocationsAreas(locations);
-    } catch (error) {
-      console.log('ERROR ::: getAreasRegion() : ', error);
-    }
+    return new Promise(async (resolve, reject) => {
+      try {
+        let responseLocationsAreas = await getAreasOfLocationsAreas(urls);
+        let listLocationsTmp = responseLocationsAreas.dataResponse;
+        // setLocationsAreas(listLocationsTmp);
+        // console.log('FIRST EXECUTED');
+        resolve(listLocationsTmp);
+      } catch (error) {
+        console.log('ERROR ::: getAreasRegion() : ', error);
+      }
+    });
   };
 
   const getAreasOfLocationsAreas = async urls => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         var listLocationsAreasTmp = [];
         urls.map(async (location, index) => {
@@ -86,29 +109,32 @@ const Locations = ({route, navigation}) => {
     });
   };
 
-  const getRegionsLocations = async urls => {
-    let dataRegionsLocationsResponse = await getRegionsOfLocations(urls);
-
-    // console.log(
-    //   'DATA OF LOCATION GET REGION DATA ::: ',
-    //   dataRegionsLocationsResponse.dataResponse,
-    // );
-    let listLocations = dataRegionsLocationsResponse.dataResponse;
-    let locationsTmp = listLocations.map(locationData => {
-      return {id: locationData.data.id, name: locationData.data.name};
+  const getLocations = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let dataUrlsResponse = await getPokemonLocations();
+        let listLocationsDataTmp = dataUrlsResponse.dataResponse.data.results;
+        let urlsLocations = listLocationsDataTmp.map(location => location.url);
+        let res = await getRegionsLocations(urlsLocations);
+        resolve({dataResponse: res});
+      } catch (error) {
+        console.log('ERROR: getLocations(): ', error);
+        reject(error);
+      }
     });
-    // setLocations(locationsTmp);
+  };
 
-    // let locationsMatch = listLocations.filter(
-    //   locationData =>
-    //     locationData.data.region.name === route.params?.regionName,
-    // );
-    // console.log('LOCATION NAME ::: ', locationData.data.name);
-    //     console.log('REGION NAME ::: ', locationData.data.region.name);
-    //     console.log('LOCATIONS-AREAS NAME ::: ', locationsAreas.name);
-    //     console.log('REGION PASS NAME ::: ', route.params?.regionName);
-    setLocations(locationsTmp);
-    // console.log('LOCATIONS FILTERED ::: ', locationsMatch.length);
+  const getRegionsLocations = async urls => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let response = await getRegionsOfLocations(urls);
+        let listLocations = response.dataResponse;
+        resolve({dataLocations: listLocations});
+      } catch (error) {
+        console.log('ERROR: getRegionsLocations() : ', error);
+        reject(error);
+      }
+    });
   };
 
   const getRegionsOfLocations = async urls => {
@@ -129,21 +155,15 @@ const Locations = ({route, navigation}) => {
     });
   };
 
-  const getLocations = async () => {
-    let dataUrlsResponse = await getPokemonLocations();
-    let listLocationsDataTmp = dataUrlsResponse.dataResponse.data.results;
-    let urlsLocations = listLocationsDataTmp.map(location => location.url);
-    getRegionsLocations(urlsLocations);
-  };
-
   const renderItemLocation = ({item}) => {
     return (
       <View style={Style.container}>
-        <TouchableRipple rippleColor={Colors.BLUE_A200}>
+        <TouchableRipple onPress={() => {
+          console.log('LOCATION AREA ', item.name, ' LOCATION : ', item.location.name, ' ID ::: ', item.id)
+        }} rippleColor={Colors.BLUE_A200}>
           <View>
             <Card StyleCustom={CardStylesCustom}>
-              <Text style={Style.regionName}>{item}</Text>
-              {/* <Text>{item.url}</Text> */}
+              <Text style={Style.regionName}>{item.location.name}</Text>
             </Card>
           </View>
         </TouchableRipple>
@@ -158,6 +178,7 @@ const Locations = ({route, navigation}) => {
         data={locationsAreas}
         renderItem={renderItemLocation}
         showsVerticalScrollIndicator={false}
+        keyExtractor={item => item.id}
       />
     </View>
   );
