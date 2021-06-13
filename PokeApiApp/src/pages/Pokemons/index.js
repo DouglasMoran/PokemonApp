@@ -8,7 +8,6 @@ import {teamsReference} from '@config/firebase_config';
 import auth from '@react-native-firebase/auth';
 
 const Pokemons = ({route, navigation}) => {
-  const [location, setLocation] = useState({});
   const [pokemons, setPokemons] = useState([]);
   const [isBottomSheetShow, setIsBottomSheetShow] = useState(false);
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
@@ -21,13 +20,14 @@ const Pokemons = ({route, navigation}) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLocation(route.params?.location);
+    // setLocation(route.params?.location);
     getPokemons();
   }, [count, loading]);
 
   const getPokemons = async () => {
     let urlsPokemons = new Promise(async (resolve, reject) => {
       try {
+        let location = route.params?.location;
         let pokemons = await location.pokemon_encounters;
         let pokemonsUrls = await pokemons.map(pokemon => pokemon.pokemon.url);
         resolve(pokemonsUrls);

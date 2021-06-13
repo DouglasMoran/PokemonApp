@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList} from 'react-native';
+import {Icon} from 'react-native-elements';
 import {teamsReference} from '@config/firebase_config';
 import auth from '@react-native-firebase/auth';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
 import {Button} from 'react-native-elements';
 
-const Dashboard = () => {
+const Dashboard = ({route, navigation}) => {
   const [teams, setTeams] = useState([]);
   const [listGenral, setListGeneral] = useState([]);
 
@@ -73,18 +74,27 @@ const Dashboard = () => {
     }
   };
 
+  const handlerNavigateToPokemonsScreenForEdit = (currentTeam) => {
+    navigation.navigate('Pokemons', {screen: 'Dashboard', team: currentTeam});
+  }
+
   const renderCardTeam = ({item}) => {
     return (
       <View>
         <Card StyleCustom={CardStylesCustom}>
-          <View style={{flex: 1}}>
-            <Text>{item.name}</Text>
-            <Text>{item.type}</Text>
-            <Text>{item.description}</Text>
+          <View style={{flex: 1, flexDirection: 'row', padding: 8}}>
+            <View style={{flex: 1,}}>
+            <Text style={{fontSize: 18}}>Mis Pokemons favoritos</Text>
+            <Text style={{fontSize: 16}}>Fuego</Text>
+            <Text>Estos pokemons son geniales en las batallas improvistas</Text>
+            </View>
+            <View style={{width: 120, justifyContent: 'space-between'}}>
+            <Button title='Edit' onPress={() => handlerNavigateToPokemonsScreenForEdit(item)} />
             <Button
-              title="show team"
-              onPress={() => handlerOnButtonDelete(item.id)}
+              title="Remove"
+              // onPress={() => handlerOnButtonDelete(item.id)}
             />
+            </View>
           </View>
         </Card>
       </View>
@@ -105,7 +115,7 @@ const Dashboard = () => {
 };
 
 const CardStylesCustom = {
-  height: 150,
+  height: 100,
   backgroundColor: Colors.GREY_300,
   borderBottomEndRadius: 16,
   borderBottomStartRadius: 16,

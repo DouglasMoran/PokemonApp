@@ -5,6 +5,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import BottomNavHost from '@components/BottomNavHost';
 import LoginScreen from '@pages/Login';
 import PokemonsScreen from '@pages/Pokemons';
+import DashboardScreen from '@pages/Dashboard';
 import LocationList from '@components/List';
 
 const Stack = createStackNavigator();
@@ -23,6 +24,7 @@ const App = () => {
           />
           <Stack.Screen name="Pokemons" component={PokemonsScreen} />
           <Stack.Screen name="Locations" component={LocationList} />
+          <Stack.Screen name="Dashboard" component={DashboardScreen} />
           <Stack.Screen
             name="BottomNavigationHost"
             component={BottomNavHost}
