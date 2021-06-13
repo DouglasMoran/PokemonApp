@@ -31,7 +31,7 @@ export const getPokemonsRegions = () => {
 export const getPokemonLocationsArea = () => {
   try {
     return new Promise(async (resolve, reject) => {
-      let locationsAreResult = await axiosApi.get('/location-area?limit=70');
+      let locationsAreResult = await axiosApi.get('/location-area?limit=20');
       let _locationsAreas = locationsAreResult.data.results;
       let locationsUrls = _locationsAreas.map(location => location.url);
       resolve({locationsUrls: locationsUrls});
@@ -45,7 +45,7 @@ export const getPokemonLocationsArea = () => {
 export const getPokemonLocations = () => {
     return new Promise(async (resolve, reject) => {
       try {
-        let locationsResponse = await axiosApi.get('/location?limit=70');
+        let locationsResponse = await axiosApi.get('/location?limit=20');
         resolve({dataResponse: locationsResponse}); 
       } catch (error) {
         console.log('ERROR: getPokemonLocations() : ', error);

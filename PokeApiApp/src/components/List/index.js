@@ -18,11 +18,30 @@ const Locations = ({route, navigation}) => {
   const [locations, setLocations] = useState([]);
   const [regions, setRegions] = useState([]);
   const [region, setRegion] = useState([]);
-  const [regionsMatchsRegionsLocations, setRegionsMatchsRegionsLocations] = useState([]);
+  const [regionsMatchsRegionsLocations, setRegionsMatchsRegionsLocations] =
+    useState([]);
 
   useEffect(() => {
     getLocationsAreas();
     getLocations();
+
+    // if (locationsAreas) {
+    //   console.log('IN - LOCATIONS ::: ', locations.length);
+    //   console.log('IN - LOCATIONS-AREAS ::: ', locationsAreas.length);
+    //   // let locsAreas = locationsAreas.filter((locationArea) => locationArea.name === locations.data.name);
+    //   // console.log('LOCS AREAS ::: ', locations);
+    //   let listLocsTmp = [];
+    //   locationsAreas.map(locationArea => {
+    //     locations.map(location => {
+    //       if (locationArea.name === location.name) {
+    //         listLocsTmp.push(locationArea);
+    //       }
+    //     });
+    //   });
+    //   console.log('LOCATIONS-AREAS LIST ::: ', locationsAreas.length);
+    //   console.log('LOCATIONS LIST ::: ', locations.length);
+    //   console.log('MATCH LIST ::: ', listLocsTmp.length);
+    // }
   }, []);
 
   const getLocationsAreas = async () => {
@@ -38,8 +57,11 @@ const Locations = ({route, navigation}) => {
     try {
       let responseLocationsAreas = await getAreasOfLocationsAreas(urls);
       let listLocationsTmp = responseLocationsAreas.dataResponse;
-
-      let locations = listLocationsTmp.map(location => location.data.location);
+      
+      let locations = listLocationsTmp.map(location => {
+        location.data.location
+        console.log('LIST AREAS ::: ', location.data)
+      });
       setLocationsAreas(locations);
     } catch (error) {
       console.log('ERROR ::: getAreasRegion() : ', error);
@@ -72,21 +94,21 @@ const Locations = ({route, navigation}) => {
     //   dataRegionsLocationsResponse.dataResponse,
     // );
     let listLocations = dataRegionsLocationsResponse.dataResponse;
-    let locations = listLocations.map(locationData => {
+    let locationsTmp = listLocations.map(locationData => {
       return {id: locationData.data.id, name: locationData.data.name};
     });
-    setLocations(locations);
-    console.log('LOCATIONS ::: ', locations);
-    console.log('LOCATIONS-AREAS ::: ', locationsAreas);
+    // setLocations(locationsTmp);
 
-    let regionsInLocations = listLocations.map(locationData => {
-      return {
-        id: locationData.data.region.name,
-        name: locationData.data.region.url,
-      };
-    });
-    console.log('THESE ARE REGIONS IN LOCATIONS ::: ', regionsInLocations);
-    setRegions(regionsInLocations);
+    // let locationsMatch = listLocations.filter(
+    //   locationData =>
+    //     locationData.data.region.name === route.params?.regionName,
+    // );
+    // console.log('LOCATION NAME ::: ', locationData.data.name);
+    //     console.log('REGION NAME ::: ', locationData.data.region.name);
+    //     console.log('LOCATIONS-AREAS NAME ::: ', locationsAreas.name);
+    //     console.log('REGION PASS NAME ::: ', route.params?.regionName);
+    setLocations(locationsTmp);
+    // console.log('LOCATIONS FILTERED ::: ', locationsMatch.length);
   };
 
   const getRegionsOfLocations = async urls => {
@@ -120,8 +142,8 @@ const Locations = ({route, navigation}) => {
         <TouchableRipple rippleColor={Colors.BLUE_A200}>
           <View>
             <Card StyleCustom={CardStylesCustom}>
-              <Text style={Style.regionName}>{item.name}</Text>
-              <Text>{item.url}</Text>
+              <Text style={Style.regionName}>{item}</Text>
+              {/* <Text>{item.url}</Text> */}
             </Card>
           </View>
         </TouchableRipple>
@@ -136,7 +158,6 @@ const Locations = ({route, navigation}) => {
         data={locationsAreas}
         renderItem={renderItemLocation}
         showsVerticalScrollIndicator={false}
-        keyExtractor={item => item.url}
       />
     </View>
   );
