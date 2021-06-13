@@ -4,7 +4,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import BottomNavHost from '@components/BottomNavHost';
 import LoginScreen from '@pages/Login';
-import DetailsScreen from '@pages/Details';
+import PokemonsScreen from '@pages/Pokemons';
 import LocationList from '@components/List';
 
 const Stack = createStackNavigator();
@@ -21,7 +21,7 @@ const App = () => {
               headerShown: false,
             }}
           />
-          <Stack.Screen name="Pokemons" component={DetailsScreen} />
+          <Stack.Screen name="Pokemons" component={PokemonsScreen} />
           <Stack.Screen name="Locations" component={LocationList} />
           <Stack.Screen
             name="BottomNavigationHost"

@@ -155,11 +155,15 @@ const Locations = ({route, navigation}) => {
     });
   };
 
+  const navigateToSerchPokemons = (currentLocationArea) => {
+    navigation.navigate('Pokemons', {location: currentLocationArea});
+  }
+
   const renderItemLocation = ({item}) => {
     return (
       <View style={Style.container}>
         <TouchableRipple onPress={() => {
-          console.log('LOCATION AREA ', item.name, ' LOCATION : ', item.location.name, ' ID ::: ', item.id)
+          navigateToSerchPokemons(item);
         }} rippleColor={Colors.BLUE_A200}>
           <View>
             <Card StyleCustom={CardStylesCustom}>
