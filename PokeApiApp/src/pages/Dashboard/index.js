@@ -4,6 +4,7 @@ import {teamsReference} from '@config/firebase_config';
 import auth from '@react-native-firebase/auth';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
+import {Button} from 'react-native-elements';
 
 const Dashboard = () => {
   const [teams, setTeams] = useState([]);
@@ -14,7 +15,6 @@ const Dashboard = () => {
     setTeamsOfCurrentUser();
   }, []);
 
-
   const setTeamsOfCurrentUser = () => {
     if (listGenral) {
       let listTeamsTmp = [];
@@ -22,22 +22,19 @@ const Dashboard = () => {
         let responseDataTeam = Object.values(teams);
         responseDataTeam.map(item => {
           listTeamsTmp.push(item.team);
-          // console.log('TEAM ::: ', item.team.name)
         });
       });
-      // console.log('TEAMS ::: ', listTeamsTmp)
       setTeams(listTeamsTmp);
     }
-  }
+  };
 
   const getDataTeamsGeneral = async () => {
-    let userId = auth().currentUser.uid;
     try {
       var listTmp = [];
       await teamsReference.on('value', snapshot => {
         snapshot.forEach(childSnapshot => {
           var childKey = childSnapshot.key;
-          if (childKey === userId) {
+          if (childKey === auth().currentUser.uid) {
             listTmp.push(childSnapshot.child('teams').val());
           }
         });
@@ -49,14 +46,45 @@ const Dashboard = () => {
     }
   };
 
+  const handlerOnButtonDelete = currentTeamId => {
+    teams.map(team => {
+      if (team.id === currentTeamId) {
+        handlerDelete(currentTeamId);
+      }
+    });
+  };
+
+  const handlerDelete = currentTeamId => {
+    try {
+      teamsReference
+        .child(auth().currentUser.uid)
+        .child('teams')
+        .child(currentTeamId)
+        .set({
+          name: 'THIS IS REF OS OBJECT',
+          type: 'FIRE',
+          description: 'Watherver',
+        })
+        .then(() => {
+          console.log('UPDATE SUCCESSFUL!!');
+        });
+    } catch (error) {
+      console.log('ERROR ::: handlerDelete() : ', error);
+    }
+  };
+
   const renderCardTeam = ({item}) => {
-    console.log('****************************')
-    console.log('TEAM ::: ', item.name)
     return (
       <View>
         <Card StyleCustom={CardStylesCustom}>
-          <View>
+          <View style={{flex: 1}}>
             <Text>{item.name}</Text>
+            <Text>{item.type}</Text>
+            <Text>{item.description}</Text>
+            <Button
+              title="show team"
+              onPress={() => handlerOnButtonDelete(item.id)}
+            />
           </View>
         </Card>
       </View>
@@ -70,17 +98,18 @@ const Dashboard = () => {
         data={teams}
         renderItem={renderCardTeam}
         showsVerticalScrollIndicator={false}
-        keyExtractor={team => team.id}
+        keyExtractor={team => team.name}
       />
     </View>
   );
 };
 
 const CardStylesCustom = {
-  height: 200,
+  height: 150,
   backgroundColor: Colors.GREY_300,
   borderBottomEndRadius: 16,
   borderBottomStartRadius: 16,
+  marginTop: 8,
 };
 
 export default Dashboard;
