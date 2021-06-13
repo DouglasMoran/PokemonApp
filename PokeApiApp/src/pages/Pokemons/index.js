@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, Image, FlatList, TouchableOpacity} from 'react-native';
-import {Button} from 'react-native-elements';
+import {Button, Input} from 'react-native-elements';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
 import axios from 'axios';
@@ -8,11 +8,19 @@ import axios from 'axios';
 const Pokemons = ({route, navigation}) => {
   const [location, setLocation] = useState({});
   const [pokemons, setPokemons] = useState([]);
+  const [isBottomSheetShow, setIsBottomSheetShow] = useState(false);
+  const [isCreatingTeam, setIsCreatingTeam] = useState(false);
+  const [isPokemonSelected, setIsPokemonSelected] = useState(false);
+  const [pokemonsSelectedList, setPokemonsSelectedList] = useState([]);
+  const [count, setCount] = useState(0);
+  const [nameTeam, setNameTeam] = useState('');
+  const [typeTeam, setTypeTeam] = useState('');
+  const [descriptionTeam, setDescriptionTeam] = useState('');
 
   useEffect(() => {
     setLocation(route.params?.location);
     getPokemons();
-  }, []);
+  }, [count, pokemonsSelectedList]);
 
   const getPokemons = async () => {
     let urlsPokemons = new Promise(async (resolve, reject) => {
@@ -62,6 +70,56 @@ const Pokemons = ({route, navigation}) => {
     });
   };
 
+  const dataToUpload = () => {
+    console.log('NAME ::: ', nameTeam);
+    console.log('TYPE ::: ', typeTeam);
+    console.log('DESCRIPTION ::: ', descriptionTeam);
+    console.log('POKEMONS SELECTED ::: ', pokemonsSelectedList.length);
+  };
+
+  const handlerSelectPokemon = currentPokemon => {
+    setCount(count + 1);
+    setIsPokemonSelected(true);
+    pokemonsSelectedList.push(currentPokemon);
+  };
+
+  const handlerShowBottomSheet = () => {
+    //HERE EXECUTE UPLOAD DATA TO FIREBASE AND FIRESTORE
+    if (isBottomSheetShow) {
+      setIsBottomSheetShow(false);
+      setIsCreatingTeam(false);
+      dataToUpload();
+    } else {
+      setIsBottomSheetShow(true);
+    }
+  };
+
+  const handlerCreateAndCancel = () => {
+    if (isCreatingTeam) {
+      setIsCreatingTeam(false);
+      setPokemonsSelectedList([]);
+      setCount(0);
+    } else {
+      setIsCreatingTeam(true);
+    }
+  };
+
+  const validatePokemonAdd = pokemon => {
+    if (count < 5) {
+      handlerSelectPokemon(pokemon);
+    } else {
+      handlerShowBottomSheet();
+    }
+  };
+
+  const eventOnSelectedItemPokemonButton = currentPokemon => {
+    pokemons.map(pokemon => {
+      if (pokemon.name === currentPokemon.name) {
+        validatePokemonAdd(pokemon);
+      }
+    });
+  };
+
   const renderCardPokemon = ({item}) => {
     return (
       <View style={{flex: 1, margin: 8}}>
@@ -83,14 +141,76 @@ const Pokemons = ({route, navigation}) => {
                   {item.name}
                 </Text>
                 <Text style={{fontSize: 16}}>{item.species.name}</Text>
-                <Button
-                  buttonStyle={{marginTop: 48, width: 100}}
-                  title="Agregar"
-                />
+                {isCreatingTeam ? (
+                  <Button
+                    onPress={() => {
+                      eventOnSelectedItemPokemonButton(item);
+                    }}
+                    buttonStyle={{marginTop: 48, width: 100}}
+                    title={isPokemonSelected ? 'Added' : 'Add'}
+                  />
+                ) : (
+                  <></>
+                )}
               </View>
             </View>
           </Card>
         </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const BottomSheet = () => {
+    return (
+      <View style={{flex: 1}}>
+        <Card StyleCustom={StylesBottomsheet}>
+          <View style={{flex: 1, width: '100%', alignItems: 'center'}}>
+            <Text
+              style={{
+                fontSize: 21,
+                fontWeight: 'bold',
+                color: Colors.WHITE_P,
+                marginTop: 8,
+              }}>
+              Create a team
+            </Text>
+
+            <View style={{width: '80%', justifyContent: 'space-around'}}>
+              <Input
+                placeholder="Name"
+                value={nameTeam}
+                containerStyle={{marginBottom: 8, borderTopEndRadius: 8}}
+                onChangeText={value => {
+                  setNameTeam(value);
+                }}
+              />
+
+              <Input
+                placeholder="Type"
+                value={typeTeam}
+                containerStyle={{marginBottom: 8}}
+                onChangeText={value => {
+                  setTypeTeam(value);
+                }}
+              />
+
+              <Input
+                placeholder="Description"
+                value={descriptionTeam}
+                containerStyle={{marginBottom: 8}}
+                onChangeText={value => {
+                  setDescriptionTeam(value);
+                }}
+              />
+            </View>
+
+            <Button
+              onPress={() => handlerShowBottomSheet()}
+              title="Create"
+              buttonStyle={{width: 200}}
+            />
+          </View>
+        </Card>
       </View>
     );
   };
@@ -104,21 +224,32 @@ const Pokemons = ({route, navigation}) => {
         showsVerticalScrollIndicator={false}
         keyExtractor={pokemon => pokemon.id}
       />
-      <View>
-        <Button
-          titleStyle={{fontSize: 21}}
-          buttonStyle={{
-            borderTopEndRadius: 0,
-            borderTopStartRadius: 0,
-            borderBottomStartRadius: 16,
-            borderBottomEndRadius: 16,
-            height: 70,
-            marginEnd: 8,
-            marginStart: 8,
-          }}
-          title="Create team"
-        />
-      </View>
+
+      {isBottomSheetShow ? (
+        <BottomSheet />
+      ) : (
+        <View>
+          <Button
+            onPress={() => {
+              handlerCreateAndCancel();
+            }}
+            titleStyle={{fontSize: 21}}
+            buttonStyle={{
+              borderTopEndRadius: 0,
+              borderTopStartRadius: 0,
+              borderBottomStartRadius: 16,
+              borderBottomEndRadius: 16,
+              height: 70,
+              marginEnd: 8,
+              marginStart: 8,
+              backgroundColor: isCreatingTeam
+                ? Colors.PINK_900
+                : Colors.BLUE_A200,
+            }}
+            title={isCreatingTeam ? `Cancel (${count}/6)` : 'Create team'}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -128,6 +259,15 @@ const CardStylesCustom = {
   backgroundColor: Colors.GREY_300,
   borderBottomEndRadius: 16,
   borderBottomStartRadius: 16,
+};
+
+const StylesBottomsheet = {
+  height: '100%',
+  backgroundColor: Colors.PINK_500,
+  borderTopEndRadius: 16,
+  borderTopStartRadius: 16,
+  marginStart: 16,
+  marginEnd: 16,
 };
 
 export default Pokemons;
