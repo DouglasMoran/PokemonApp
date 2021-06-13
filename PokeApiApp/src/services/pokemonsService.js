@@ -40,46 +40,16 @@ export const getPokemonLocationsArea = () => {
     reject(error);
     console.log('ERROR : getPokemonLocationsArea() ::: ', error);
   }
-
 };
 
 export const getPokemonLocations = () => {
-  try {
-    const locationsGeneral = new Promise(async (resolve, reject) => {
-      let pokemonLocationResults = await axiosApi.get('/location?limit=7');
-      resolve({locations: pokemonLocationResults});
-    });
-
-    locationsGeneral.then(locations => {
-      let locationsTmp = locations.locations.data.results;
-      locationsTmp.map(location => {
-        return new Promise(async (resolve, reject) => {
-          let dataCurrentLocation = await axiosApi.get(location.url);
-          resolve({dataCurrent: dataCurrentLocation});
-        });
-      });
-    });
-  } catch (error) {
-    console.log(
-      'getPokemonsRegions() : OPERATION NOT EXECUTED BY ERROR: ',
-      error,
-    );
-    reject(error);
-  }
-};
-
-export const encounterPokemons = id => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // https://pokeapi.co/api/v2/encounter-condition-value/{id or name}/
-      let responseEncounters = await axiosApi.get(`/pokemon/${id}/encounters`);
-      resolve({encounters: responseEncounters});
-    } catch (error) {
-      console.log(
-        'getPokemonsRegions() : OPERATION NOT EXECUTED BY ERROR: ',
-        error,
-      );
-      reject(error);
-    }
-  });
+    return new Promise(async (resolve, reject) => {
+      try {
+        let locationsResponse = await axiosApi.get('/location?limit=70');
+        resolve({dataResponse: locationsResponse}); 
+      } catch (error) {
+        console.log('ERROR: getPokemonLocations() : ', error);
+        reject(error);
+      }
+    })
 };
