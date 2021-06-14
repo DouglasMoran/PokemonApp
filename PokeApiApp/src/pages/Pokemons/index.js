@@ -134,7 +134,9 @@ const Pokemons = ({route, navigation}) => {
       );
       console.log('POKEMONS UPDATE ::: ', pokemonListUpdate.length);
       setPokemonsSelectedList(pokemonListUpdate);
-      setPokemons(pokemonListUpdate);
+      if(route.params?.screen === 'Dashboard') {
+        setPokemons(pokemonListUpdate);
+      }
     } catch (error) {
       console.log('THIS IS THE ERROR :::  ', error);
     }
