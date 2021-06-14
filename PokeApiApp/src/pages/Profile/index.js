@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, ActivityIndicator} from 'react-native';
 import {Button, Image} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
@@ -9,20 +9,28 @@ import Styles from './styles/index';
 
 const Profile = ({navigation}) => {
   const [user, setUser] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loadingSigOut, setLoadingSignOut] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
     getUser();
   }, []);
 
   const getUser = async () => {
-    let responseUser = await auth().currentUser;
-    setUser(responseUser);
+    try {
+      setLoadingData(true);
+      let responseUser = await auth().currentUser;
+      setUser(responseUser);
+    } catch (error) {
+      console.log('ERROR ::: getUser(): ', error);
+    } finally {
+      setLoadingData(false);
+    }
   };
 
   const signOut = async () => {
     try {
-      setLoading(true);
+      setLoadingSignOut(true);
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
       auth()
@@ -43,6 +51,13 @@ const Profile = ({navigation}) => {
       <Card StyleCustom={CardStyleCustom}>
         <View style={Styles.containerChild}>
           <Image
+            PlaceholderContent={
+              <ActivityIndicator
+                loading={loadingData}
+                size={70}
+                color={Colors.PINK_500}
+              />
+            }
             style={Styles.imagePhoto}
             source={
               user.photoURL
@@ -50,6 +65,7 @@ const Profile = ({navigation}) => {
                 : require('@assets/images/user-blanckstate.png')
             }
           />
+
           <Text style={Styles.textName}>{user.displayName}</Text>
           <Text style={Styles.textEmail}>{user.email}</Text>
           <Button
@@ -59,7 +75,7 @@ const Profile = ({navigation}) => {
             color={Colors.GREEN_A200}
             title="Sign Out"
             iconPosition={'left'}
-            loading={loading}
+            loading={loadingSigOut}
           />
         </View>
       </Card>
