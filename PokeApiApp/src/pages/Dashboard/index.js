@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList} from 'react-native';
+import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
 import {Icon} from 'react-native-elements';
 import {teamsReference} from '@config/firebase_config';
 import auth from '@react-native-firebase/auth';
@@ -9,42 +9,51 @@ import {Button} from 'react-native-elements';
 
 const Dashboard = ({route, navigation}) => {
   const [teams, setTeams] = useState([]);
-  const [listGenral, setListGeneral] = useState([]);
 
   useEffect(() => {
     getDataTeamsGeneral();
   }, []);
 
-  const setTeamsOfCurrentUser = (list) => {
-    if (list) {
-      let listTeamsTmp = [];
-      list.map(teams => {
-        let responseDataTeam = Object.values(teams);
-        responseDataTeam.map(item => {
-          listTeamsTmp.push(item.team);
+  const setTeamsOfCurrentUser = list => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let listTeamsTmp = [];
+        list.map(teams => {
+          let responseDataTeam = Object.values(teams);
+          responseDataTeam.map(item => {
+            listTeamsTmp.push(item.team);
+          });
         });
-      });
-      setTeams(listTeamsTmp);
-    }
+        resolve(listTeamsTmp);
+      } catch (error) {
+        reject(error);
+      }
+    });
   };
 
   const getDataTeamsGeneral = async () => {
-    try {
-      var listTmp = [];
-      await teamsReference.on('value', snapshot => {
-        snapshot.forEach(childSnapshot => {
-          var childKey = childSnapshot.key;
-          if (childKey === auth().currentUser.uid) {
-            listTmp.push(childSnapshot.child('teams').val());
-          }
+    let dataResponse = new Promise(async (resolve, reject) => {
+      try {
+        var listTmp = [];
+        await teamsReference.on('value', snapshot => {
+          snapshot.forEach(childSnapshot => {
+            var childKey = childSnapshot.key;
+            if (childKey === auth().currentUser.uid) {
+              listTmp.push(childSnapshot.child('teams').val());
+            }
+          });
         });
-      });
+        resolve(listTmp);
+      } catch (error) {
+        console.log('ERROR ::: getTeams(): ', error);
+        reject(error);
+      }
+    });
 
-      setTeamsOfCurrentUser(listTmp);
-      setListGeneral(listTmp);
-    } catch (error) {
-      console.log('ERROR ::: getTeams(): ', error);
-    }
+    dataResponse.then(async dataRes => {
+      let teams = await setTeamsOfCurrentUser(dataRes);
+      setTeams(teams);
+    });
   };
 
   const handlerOnButtonDelete = currentTeamId => {
@@ -70,26 +79,42 @@ const Dashboard = ({route, navigation}) => {
     }
   };
 
-  const handlerNavigateToPokemonsScreenForEdit = (currentTeam) => {
+  const handlerNavigateToPokemonsScreenForEdit = currentTeam => {
     navigation.navigate('Pokemons', {screen: 'Dashboard', team: currentTeam});
-  }
+  };
 
   const renderCardTeam = ({item}) => {
     return (
       <View>
         <Card StyleCustom={CardStylesCustom}>
           <View style={{flex: 1, flexDirection: 'row', padding: 8}}>
-            <View style={{flex: 1,}}>
-            <Text style={{fontSize: 18}}>Mis Pokemons favoritos</Text>
-            <Text style={{fontSize: 16}}>Fuego</Text>
-            <Text>Estos pokemons son geniales en las batallas improvistas</Text>
+            <View style={{flex: 1}}>
+              <Text style={{fontSize: 18}}>Mis Pokemons favoritos</Text>
+              <Text style={{fontSize: 16}}>Fuego</Text>
+              <Text>
+                Estos pokemons son geniales en las batallas improvistas
+              </Text>
             </View>
-            <View style={{width: 120, justifyContent: 'space-between'}}>
-            <Button title='Edit' onPress={() => handlerNavigateToPokemonsScreenForEdit(item)} />
-            <Button
-              title="Remove"
-              onPress={() => handlerOnButtonDelete(item.id)}
-            />
+            <View
+              style={{
+                width: 100,
+                justifyContent: 'space-around',
+                flexDirection: 'row',
+              }}>
+              <TouchableOpacity
+                onPress={() => handlerNavigateToPokemonsScreenForEdit(item)}>
+                <Image
+                  source={require('@assets/images/edit.png')}
+                  style={{width: 24, height: 24}}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => handlerOnButtonDelete()}>
+                <Image
+                  source={require('@assets/images/trasher.png')}
+                  style={{width: 24, height: 24}}
+                />
+              </TouchableOpacity>
             </View>
           </View>
         </Card>

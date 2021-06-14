@@ -1,4 +1,7 @@
 import React from 'react';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import {Image} from 'react-native';
+import Colors from '@common/Colors'
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import DashboardScreen from '@pages/Dashboard';
 import ProfileScreen from '@pages/Profile';
@@ -9,9 +12,33 @@ const TabsBottomNavigation = () => {
   return (
     <Tab.Navigator
       barStyle={{borderTopEndRadius: 24, borderTopStartRadius: 24}}>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({color, size}) => (
+            <Image source={require('@assets/images/home.png')} style={{width: 24, height: 24}} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Dashboard"
+        component={DashboardScreen}
+        options={{
+          tabBarIcon: ({color, size}) => (
+            <Image source={require('@assets/images/dashboard.png')} style={{width: 24, height: 24}} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({color, size}) => (
+            <Image source={require('@assets/images/user.png')} style={{width: 24, height: 24}} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };

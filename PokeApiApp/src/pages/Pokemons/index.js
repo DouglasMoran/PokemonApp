@@ -9,25 +9,35 @@ import auth from '@react-native-firebase/auth';
 
 const Pokemons = ({route, navigation}) => {
   const [pokemons, setPokemons] = useState([]);
-  const [isBottomSheetShow, setIsBottomSheetShow] = useState(false);
-  const [isCreatingTeam, setIsCreatingTeam] = useState(false);
-  const [pokemonsSelectedList, setPokemonsSelectedList] = useState([]);
+  const [isBottomSheetShow, setIsBottomSheetShow] = useState(
+    route.params?.screen === 'Dashboard' ? false : false,
+  );
+  const [isCreatingTeam, setIsCreatingTeam] = useState(
+    route.params?.screen === 'Dashboard' ? true : false,
+  );
+  const [pokemonsSelectedList, setPokemonsSelectedList] = useState(
+    route.params?.screen === 'Dashboard' ? route.params?.team.pokemons : [],
+  );
   const [count, setCount] = useState(0);
+  const [countActionEdit, setCountActionEdit] = useState(0);
   const [nameTeam, setNameTeam] = useState('');
   const [typeTeam, setTypeTeam] = useState('');
   const [descriptionTeam, setDescriptionTeam] = useState('');
   const [loading, setLoading] = useState(false);
   const [typesSelections, setTypesSelections] = useState([
     'Add',
-    'Added',
     'Remove',
     'Edit',
+    'Cancel',
   ]);
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(route.params?.screen === 'Dashboard' ? route.params?.team.pokemons.map(pokemon => pokemon.id) : []);
+  const [isEditing, setIsEditing] = useState();
 
   useEffect(() => {
-    getPokemons();
-    
+    if (route.params?.location !== undefined) {
+      getPokemons();
+    }
+    console.log('TEAM PASS ::: ', route.params);
   }, [count, loading]);
 
   const getPokemons = async () => {
@@ -39,6 +49,7 @@ const Pokemons = ({route, navigation}) => {
         resolve(pokemonsUrls);
       } catch (error) {
         reject(error);
+        console.log('THIS IS A ERROR ::: ', error);
       }
     });
 
@@ -102,8 +113,10 @@ const Pokemons = ({route, navigation}) => {
         .child(team.id)
         .set({team})
         .then(res => {
-          console.log('Data uploaded SUCCESSFUL!!');
           setLoading(false);
+          setPokemonsSelectedList([]);
+          setSelectedIds([]);
+          handlerShowBottomSheet();
         });
     } catch (error) {
       console.log('ERROR EXECUTING ::: dataToUpload(): ', error);
@@ -138,10 +151,24 @@ const Pokemons = ({route, navigation}) => {
   };
 
   const validatePokemonAdd = pokemon => {
-    if (count <= 2 && count <=5) {
+    if (count <= 2 && count <= 5) {
       handlerSelectPokemon(pokemon);
     } else {
       handlerShowBottomSheet();
+    }
+  };
+
+  const handlerRemovePokemon = currentPokemon => {
+    try {
+      console.log('LEGHT POKEMONS SELECTED ::: ', pokemonsSelectedList.length);
+      let pokemonListUpdate = pokemonsSelectedList.filter(
+        pokemon => pokemon.id !== currentPokemon.id,
+      );
+      // setPokemonsSelectedList(pokemonListUpdate);
+      console.log('LEGHT FILTERED ::: ', pokemonListUpdate.length);
+      setSelectedIds(selectIds);
+    } catch (error) {
+      console.log('THIS IS THE ERROR :::  ', error);
     }
   };
 
@@ -150,7 +177,7 @@ const Pokemons = ({route, navigation}) => {
       validatePokemonAdd(currentPokemon);
       var selectIds = [...selectedIds]; // clone state
       if (selectedIds.includes(currentPokemon.id)) {
-        // selectedIds = selectedIds.filter(_id => _id !== currentPokemonId);
+        selectedIds = selectedIds.filter(_id => _id !== currentPokemonId);
       } else {
         selectIds.push(currentPokemon.id);
       }
@@ -184,18 +211,18 @@ const Pokemons = ({route, navigation}) => {
                 {isCreatingTeam ? (
                   <Button
                     onPress={() => {
-                      eventOnSelectedItemPokemonButton(item);
+                        eventOnSelectedItemPokemonButton(item);
                     }}
                     buttonStyle={
                       selectedIds.includes(item.id)
                         ? {
                             marginTop: 48,
                             width: 100,
-                            backgroundColor: Colors.GREEN_A200,
+                            backgroundColor: Colors.PINK_500,
                           }
                         : {marginTop: 48, width: 100}
                     }
-                    title={selectedIds.includes(item.id) ? 'Added' : 'Add'}
+                    title={selectedIds.includes(item.id) ? 'Remove' : 'Add'}
                   />
                 ) : (
                   <></>
@@ -220,7 +247,9 @@ const Pokemons = ({route, navigation}) => {
                 color: Colors.WHITE_P,
                 marginTop: 8,
               }}>
-              Create a team
+              {route.params?.screen === 'Dashboard'
+                ? 'Edit your team'
+                : 'Create a team'}
             </Text>
 
             <View style={{width: '80%', justifyContent: 'space-around'}}>
@@ -254,11 +283,16 @@ const Pokemons = ({route, navigation}) => {
 
             <Button
               loading={loading}
+              disabled={loading}
               onPress={() => {
-                uploadTeam();
-                handlerShowBottomSheet();
+                if (route.params?.screen === 'Dashboard') {
+                  // Here call to make update team
+                  navigation.goBack();
+                } else {
+                  uploadTeam();
+                }
               }}
-              title="Create"
+              title={route.params?.screen === 'Dashboard' ? 'Update' : 'Create'}
               buttonStyle={{width: 200}}
             />
           </View>
@@ -271,7 +305,7 @@ const Pokemons = ({route, navigation}) => {
     <View style={{flex: 1, margin: 8}}>
       <FlatList
         style={{flex: 1}}
-        data={pokemons}
+        data={route.params?.team ? route.params?.team.pokemons : pokemons}
         extraData={selectedIds}
         renderItem={renderCardPokemon}
         showsVerticalScrollIndicator={false}
@@ -284,7 +318,11 @@ const Pokemons = ({route, navigation}) => {
         <View>
           <Button
             onPress={() => {
-              handlerCreateAndCancel();
+              if (route.params?.screen === 'Dashboard') {
+                handlerShowBottomSheet();
+              } else {
+                handlerCreateAndCancel();
+              }
             }}
             titleStyle={{fontSize: 21}}
             buttonStyle={{
@@ -299,7 +337,19 @@ const Pokemons = ({route, navigation}) => {
                 ? Colors.PINK_900
                 : Colors.BLUE_A200,
             }}
-            title={isCreatingTeam ? `Cancel (${count}/6)` : 'Create team'}
+            title={
+              isCreatingTeam
+                ? `${
+                    route.params?.screen === 'Dashboard'
+                      ? 'Next'
+                      : `Cancel (${count}/6)`
+                  } `
+                : `${
+                    route.params?.screen === 'Dashboard'
+                      ? 'Edit Team'
+                      : 'Create Team'
+                  }`
+            }
           />
         </View>
       )}

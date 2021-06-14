@@ -109,6 +109,7 @@ const Style = StyleSheet.create({
     fontSize: 52,
     fontWeight: 'bold',
     color: Colors.WHITE_P,
+    fontFamily: 'Montserrat-ExtraBold',
   },
   childrenCard: {
     flex: 1,
