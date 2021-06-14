@@ -5,6 +5,7 @@ import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
+import Styles from './styles/index';
 
 const Profile = ({navigation}) => {
   const [user, setUser] = useState({});
@@ -38,36 +39,23 @@ const Profile = ({navigation}) => {
   };
 
   return (
-    <View style={{flex: 1, justifyContent: 'center'}}>
+    <View style={Styles.containerMain}>
       <Card StyleCustom={CardStyleCustom}>
-        <View style={{flex: 1, alignItems: 'center'}}>
+        <View style={Styles.containerChild}>
           <Image
-            style={{
-              width: 150,
-              height: 150,
-              borderRadius: 100,
-              marginTop: 24,
-            }}
+            style={Styles.imagePhoto}
             source={
               user.photoURL
                 ? {uri: user?.photoURL}
                 : require('@assets/images/user-blanckstate.png')
             }
           />
-          <Text
-            style={{
-              fontSize: 24,
-              fontWeight: 'bold',
-              marginTop: 24,
-              textAlign: 'center',
-            }}>
-            {user.displayName}
-          </Text>
-          <Text style={{textAlign: 'center'}}>{user.email}</Text>
+          <Text style={Styles.textName}>{user.displayName}</Text>
+          <Text style={Styles.textEmail}>{user.email}</Text>
           <Button
             type="clear"
             onPress={() => signOut()}
-            buttonStyle={{marginTop: 200}}
+            buttonStyle={Styles.buttonSignOut}
             color={Colors.GREEN_A200}
             title="Sign Out"
             iconPosition={'left'}

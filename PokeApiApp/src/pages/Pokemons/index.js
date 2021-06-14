@@ -5,6 +5,7 @@ import Card from '@components/Card';
 import Colors from '@common/Colors';
 import axios from 'axios';
 import BottomSheet from '@components/BottomSheet';
+import Styles from './styles/index';
 
 const Pokemons = ({route, navigation}) => {
   const [pokemons, setPokemons] = useState([]);
@@ -18,7 +19,6 @@ const Pokemons = ({route, navigation}) => {
     route.params?.screen === 'Dashboard' ? route.params?.team.pokemons : [],
   );
   const [count, setCount] = useState(0);
-  const [countActionEdit, setCountActionEdit] = useState(0);
   const [loading, setLoading] = useState(false);
   const [typesSelections, setTypesSelections] = useState([
     'Add',
@@ -31,7 +31,6 @@ const Pokemons = ({route, navigation}) => {
       ? route.params?.team.pokemons.map(pokemon => pokemon.id)
       : [],
   );
-  const [isEditing, setIsEditing] = useState();
 
   useEffect(() => {
     if (route.params?.location !== undefined) {
@@ -127,11 +126,11 @@ const Pokemons = ({route, navigation}) => {
 
   const handlerRemovePokemon = currentPokemon => {
     try {
-      console.log('POKEMONS ::: ', pokemonsSelectedList.length)
+      console.log('POKEMONS ::: ', pokemonsSelectedList.length);
       let pokemonListUpdate = pokemonsSelectedList.filter(
         pokemon => pokemon.id !== currentPokemon.id,
       );
-      console.log('POKEMONS UPDATE ::: ', pokemonListUpdate.length)
+      console.log('POKEMONS UPDATE ::: ', pokemonListUpdate.length);
       setPokemonsSelectedList(pokemonListUpdate);
     } catch (error) {
       console.log('THIS IS THE ERROR :::  ', error);
@@ -155,31 +154,23 @@ const Pokemons = ({route, navigation}) => {
 
   const renderCardPokemon = ({item}) => {
     return (
-      <View style={{flex: 1, margin: 8}}>
+      <View style={Styles.containerMainCard}>
         <TouchableOpacity rippleColor={Colors.BLUE_A200}>
           <Card StyleCustom={CardStylesCustom}>
-            <View style={{flex: 1, flexDirection: 'row', margin: 12}}>
+            <View style={Styles.containerChildCard}>
               <Image
-                style={{flex: 1}}
+                style={Styles.imagePokemon}
                 source={{uri: item.sprites.back_default}}
               />
-              <View
-                style={{
-                  width: 175,
-                  height: 175,
-                  alignItems: 'center',
-                  justifyContent: 'space-around',
-                }}>
-                <Text style={{fontSize: 28, fontWeight: 'bold'}}>
-                  {item.name}
-                </Text>
-                <Text style={{fontSize: 16}}>{item.species.name}</Text>
+              <View style={Styles.containerDataCard}>
+                <Text style={Styles.textName}>{item.name}</Text>
+                <Text style={Styles.textSpeciesName}>{item.species.name}</Text>
                 {isCreatingTeam ? (
                   <Button
                     onPress={() => {
-                      
-                      selectedIds.includes(item.id) ? handlerRemovePokemon(item) : eventOnSelectedItemPokemonButton(item)
-                      
+                      selectedIds.includes(item.id)
+                        ? handlerRemovePokemon(item)
+                        : eventOnSelectedItemPokemonButton(item);
                     }}
                     buttonStyle={
                       selectedIds.includes(item.id)
