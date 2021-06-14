@@ -1,18 +1,35 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
-import {Icon} from 'react-native-elements';
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import {teamsReference} from '@config/firebase_config';
 import auth from '@react-native-firebase/auth';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
-import {Button} from 'react-native-elements';
+import {InteractionManager} from 'react-native';
 
 const Dashboard = ({route, navigation}) => {
   const [teams, setTeams] = useState([]);
+  const [isLoading, setLoading] = useState(false);
 
-  useEffect(() => {
-    getDataTeamsGeneral();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        // Expensive task
+        getDataTeamsGeneral();
+      });
+
+      return () => task.cancel();
+    }, []),
+  );
+
+  useEffect(() => {}, []);
 
   const setTeamsOfCurrentUser = list => {
     return new Promise(async (resolve, reject) => {
@@ -73,6 +90,7 @@ const Dashboard = ({route, navigation}) => {
         .set(null)
         .then(() => {
           console.log('UPDATE SUCCESSFUL!!');
+          setLoading(false);
         });
     } catch (error) {
       console.log('ERROR ::: handlerDelete() : ', error);
@@ -109,11 +127,24 @@ const Dashboard = ({route, navigation}) => {
                 />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => handlerOnButtonDelete()}>
-                <Image
-                  source={require('@assets/images/trasher.png')}
-                  style={{width: 24, height: 24}}
-                />
+              <TouchableOpacity
+                onPress={() => {
+                  setLoading(true);
+                  handlerOnButtonDelete(item.id);
+                }}>
+                {isLoading ? (
+                  <ActivityIndicator
+                    animating={true}
+                    onPress={() => handlerOn}
+                    style={{width: 32, height: 32}}
+                    color={Colors.PINK_500}
+                  />
+                ) : (
+                  <Image
+                    source={require('@assets/images/trasher.png')}
+                    style={{width: 24, height: 24}}
+                  />
+                )}
               </TouchableOpacity>
             </View>
           </View>
