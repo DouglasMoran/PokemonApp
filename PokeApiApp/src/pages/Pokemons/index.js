@@ -27,6 +27,7 @@ const Pokemons = ({route, navigation}) => {
 
   useEffect(() => {
     getPokemons();
+    
   }, [count, loading]);
 
   const getPokemons = async () => {
@@ -137,7 +138,7 @@ const Pokemons = ({route, navigation}) => {
   };
 
   const validatePokemonAdd = pokemon => {
-    if (count <= 5) {
+    if (count <= 2 && count <=5) {
       handlerSelectPokemon(pokemon);
     } else {
       handlerShowBottomSheet();

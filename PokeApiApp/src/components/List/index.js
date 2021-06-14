@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity} from 'react-native';
 import {
   getPokemonLocationsArea,
   getPokemonLocations,
@@ -7,23 +7,13 @@ import {
 import Card from '@components/Card';
 import Colors from '@common/Colors';
 import {getId} from '@utils/truncsStrings';
-import {TouchableRipple} from 'react-native-paper';
 import Style from '../../pages/Home/styles/index';
 import axios from 'axios';
 
 const Locations = ({route, navigation}) => {
-  const [pokemonLocations, setPokemonLocations] = useState([]);
-  const [urlsLocations, setUrlsLocations] = useState([]);
   const [locationsAreas, setLocationsAreas] = useState([]);
-  const [locations, setLocations] = useState([]);
-  const [regions, setRegions] = useState([]);
-  const [region, setRegion] = useState([]);
-  const [regionsMatchsRegionsLocations, setRegionsMatchsRegionsLocations] =
-    useState([]);
 
   useEffect(() => {
-    // getLocationsAreas();
-    // getLocations();
     getDataOfLists();
   }, []);
 
@@ -38,7 +28,6 @@ const Locations = ({route, navigation}) => {
       }
     });
     locationsAreas.then(res => {
-
       let locations = new Promise(async (resolve, reject) => {
         try {
           let secondLoc = await getLocations();
@@ -52,8 +41,9 @@ const Locations = ({route, navigation}) => {
         res.dataLocationsAreas.data.map((locationArea) => {
           response.dataResponse.dataLocations.map((location) => {
             if (locationArea.data.location.name === location.data.name) {
+              listTmp.push(locationArea.data);
               if (location.data.region.name === route.params?.regionName) {
-                listTmp.push(locationArea.data);
+                // listTmp.push(locationArea.data);
               }
             }
           });
@@ -162,15 +152,15 @@ const Locations = ({route, navigation}) => {
   const renderItemLocation = ({item}) => {
     return (
       <View style={Style.container}>
-        <TouchableRipple onPress={() => {
+        <TouchableOpacity onPress={() => {
           navigateToSerchPokemons(item);
-        }} rippleColor={Colors.BLUE_A200}>
+        }}>
           <View>
             <Card StyleCustom={CardStylesCustom}>
               <Text style={Style.regionName}>{item.location.name}</Text>
             </Card>
           </View>
-        </TouchableRipple>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -190,7 +180,6 @@ const Locations = ({route, navigation}) => {
 
 const CardStylesCustom = {
   height: 70,
-  backgroundColor: Colors.BLUE_A200,
   marginBottom: 16,
 };
 

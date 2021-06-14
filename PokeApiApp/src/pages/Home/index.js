@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, FlatList} from 'react-native';
-import {TouchableRipple} from 'react-native-paper';
+import {View, Text, FlatList, TouchableOpacity} from 'react-native';
 import Card from '@components/Card';
 import {getPokemonsRegions} from '@services/pokemonsService';
 import Colors from '@common/Colors';
@@ -27,7 +26,7 @@ const Home = ({navigation}) => {
   const renderItemRegion = ({item}) => {
     return (
       <View style={Style.container}>
-        <TouchableRipple
+        <TouchableOpacity
           onPress={() => {
             navigation.navigate('Locations', {regionName: item.name});
           }}
@@ -35,10 +34,9 @@ const Home = ({navigation}) => {
           <View>
             <Card StyleCustom={CardStylesCustom}>
               <Text style={Style.regionName}>{item.name}</Text>
-              <Text>{item.url}</Text>
             </Card>
           </View>
-        </TouchableRipple>
+        </TouchableOpacity>
       </View>
     );
   };

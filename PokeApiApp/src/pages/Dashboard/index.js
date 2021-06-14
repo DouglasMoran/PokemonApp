@@ -13,13 +13,12 @@ const Dashboard = ({route, navigation}) => {
 
   useEffect(() => {
     getDataTeamsGeneral();
-    setTeamsOfCurrentUser();
   }, []);
 
-  const setTeamsOfCurrentUser = () => {
-    if (listGenral) {
+  const setTeamsOfCurrentUser = (list) => {
+    if (list) {
       let listTeamsTmp = [];
-      listGenral.map(teams => {
+      list.map(teams => {
         let responseDataTeam = Object.values(teams);
         responseDataTeam.map(item => {
           listTeamsTmp.push(item.team);
@@ -41,6 +40,7 @@ const Dashboard = ({route, navigation}) => {
         });
       });
 
+      setTeamsOfCurrentUser(listTmp);
       setListGeneral(listTmp);
     } catch (error) {
       console.log('ERROR ::: getTeams(): ', error);
@@ -61,11 +61,7 @@ const Dashboard = ({route, navigation}) => {
         .child(auth().currentUser.uid)
         .child('teams')
         .child(currentTeamId)
-        .set({
-          name: 'THIS IS REF OS OBJECT',
-          type: 'FIRE',
-          description: 'Watherver',
-        })
+        .set(null)
         .then(() => {
           console.log('UPDATE SUCCESSFUL!!');
         });
@@ -92,7 +88,7 @@ const Dashboard = ({route, navigation}) => {
             <Button title='Edit' onPress={() => handlerNavigateToPokemonsScreenForEdit(item)} />
             <Button
               title="Remove"
-              // onPress={() => handlerOnButtonDelete(item.id)}
+              onPress={() => handlerOnButtonDelete(item.id)}
             />
             </View>
           </View>
