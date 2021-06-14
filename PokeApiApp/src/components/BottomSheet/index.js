@@ -31,6 +31,7 @@ const BottomSheetComponent = ({
     pokemonsSelectedList.map((pokemon) => {
       console.log('POKEMON OF LIST ::: ', pokemon.name)
       console.log('TEAM IN BOTTOM SHEET TO UPDATE ::: ', teamToUpdate);
+      console.log('LEGHT OF THE LIST ::: IN BOTTOM SHEE FOR UPDATE DATA', pokemonsSelectedList.length)
     })
 
   },[])

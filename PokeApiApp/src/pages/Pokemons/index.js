@@ -8,7 +8,9 @@ import BottomSheet from '@components/BottomSheet';
 import Styles from './styles/index';
 
 const Pokemons = ({route, navigation}) => {
-  const [pokemons, setPokemons] = useState([]);
+  const [pokemons, setPokemons] = useState(
+    route.params?.screen === 'Dashboard' ? route.params?.team.pokemons : [],
+  );
   const [isBottomSheetShow, setIsBottomSheetShow] = useState(
     route.params?.screen === 'Dashboard' ? true : false,
   );
@@ -36,7 +38,7 @@ const Pokemons = ({route, navigation}) => {
     if (route.params?.location !== undefined) {
       getPokemons();
     }
-  }, [loading, pokemonsSelectedList]);
+  }, [loading]);
 
   const getPokemons = async () => {
     let urlsPokemons = new Promise(async (resolve, reject) => {
@@ -132,6 +134,7 @@ const Pokemons = ({route, navigation}) => {
       );
       console.log('POKEMONS UPDATE ::: ', pokemonListUpdate.length);
       setPokemonsSelectedList(pokemonListUpdate);
+      setPokemons(pokemonListUpdate);
     } catch (error) {
       console.log('THIS IS THE ERROR :::  ', error);
     }
@@ -198,7 +201,7 @@ const Pokemons = ({route, navigation}) => {
     <View style={{flex: 1, margin: 8}}>
       <FlatList
         style={{flex: 1}}
-        data={route.params?.team ? route.params?.team.pokemons : pokemons}
+        data={pokemons}
         extraData={selectedIds}
         renderItem={renderCardPokemon}
         showsVerticalScrollIndicator={false}
@@ -211,7 +214,7 @@ const Pokemons = ({route, navigation}) => {
           teamToUpdate={route.params?.team}
           loading={loading}
           navigation={navigation}
-          pokemonsSelectedList={pokemonsSelectedList}
+          pokemonsSelectedList={route.params?.screen === 'Dashboard' ? pokemons : pokemonsSelectedList}
           setSelectedIds={setSelectedIds}
           setPokemonsSelectedList={setPokemonsSelectedList}
           handlerShowBottomSheet={handlerShowBottomSheet}
