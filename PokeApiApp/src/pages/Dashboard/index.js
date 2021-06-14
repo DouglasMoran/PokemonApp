@@ -13,6 +13,7 @@ import auth from '@react-native-firebase/auth';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
 import {InteractionManager} from 'react-native';
+import {truncateStr} from '@utils/truncsStrings';
 
 const Dashboard = ({route, navigation}) => {
   const [teams, setTeams] = useState([]);
@@ -21,15 +22,18 @@ const Dashboard = ({route, navigation}) => {
   useFocusEffect(
     React.useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        // Expensive task
         getDataTeamsGeneral();
       });
-
       return () => task.cancel();
     }, []),
   );
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if(teams === undefined) {
+      getDataTeamsGeneral();
+    }
+    console.log('TEAMS :: ', teams)
+  }, []);
 
   const setTeamsOfCurrentUser = list => {
     return new Promise(async (resolve, reject) => {
@@ -73,10 +77,11 @@ const Dashboard = ({route, navigation}) => {
     });
   };
 
-  const handlerOnButtonDelete = currentTeamId => {
+  const handlerOnButtonDelete = currentTeam => {
+    console.log('CURRENT TEAM ::: ', currentTeam.name)
     teams.map(team => {
-      if (team.id === currentTeamId) {
-        handlerDelete(currentTeamId);
+      if (team.id === currentTeam.id) {
+        handlerDelete(currentTeam.id);
       }
     });
   };
@@ -89,7 +94,7 @@ const Dashboard = ({route, navigation}) => {
         .child(currentTeamId)
         .set(null)
         .then(() => {
-          console.log('UPDATE SUCCESSFUL!!');
+          console.log('DELETE SUCCESSFUL!!');
           setLoading(false);
         });
     } catch (error) {
@@ -102,15 +107,16 @@ const Dashboard = ({route, navigation}) => {
   };
 
   const renderCardTeam = ({item}) => {
+    console.log('TEAM :::  CURRENT ::::::: ', item)
     return (
       <View>
         <Card StyleCustom={CardStylesCustom}>
           <View style={{flex: 1, flexDirection: 'row', padding: 8}}>
             <View style={{flex: 1}}>
-              <Text style={{fontSize: 18}}>Mis Pokemons favoritos</Text>
-              <Text style={{fontSize: 16}}>Fuego</Text>
+              <Text style={{fontSize: 18}}>{truncateStr(item.name, 20)}</Text>
+              <Text style={{fontSize: 16}}>{truncateStr(item.type, 20)}</Text>
               <Text>
-                Estos pokemons son geniales en las batallas improvistas
+                {truncateStr(item.description, 42)}
               </Text>
             </View>
             <View
@@ -129,8 +135,8 @@ const Dashboard = ({route, navigation}) => {
 
               <TouchableOpacity
                 onPress={() => {
-                  setLoading(true);
-                  handlerOnButtonDelete(item.id);
+                  // setLoading(false);
+                  handlerOnButtonDelete(item);
                 }}>
                 {isLoading ? (
                   <ActivityIndicator
@@ -160,7 +166,7 @@ const Dashboard = ({route, navigation}) => {
         data={teams}
         renderItem={renderCardTeam}
         showsVerticalScrollIndicator={false}
-        keyExtractor={team => team.name}
+        keyExtractor={team => team ? team.id : null}
       />
     </View>
   );

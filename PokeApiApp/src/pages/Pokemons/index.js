@@ -1,16 +1,15 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, Image, FlatList, TouchableOpacity} from 'react-native';
-import {Button, Input} from 'react-native-elements';
+import {Button} from 'react-native-elements';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
 import axios from 'axios';
-import {teamsReference} from '@config/firebase_config';
-import auth from '@react-native-firebase/auth';
+import BottomSheet from '@components/BottomSheet';
 
 const Pokemons = ({route, navigation}) => {
   const [pokemons, setPokemons] = useState([]);
   const [isBottomSheetShow, setIsBottomSheetShow] = useState(
-    route.params?.screen === 'Dashboard' ? false : false,
+    route.params?.screen === 'Dashboard' ? true : false,
   );
   const [isCreatingTeam, setIsCreatingTeam] = useState(
     route.params?.screen === 'Dashboard' ? true : false,
@@ -20,9 +19,6 @@ const Pokemons = ({route, navigation}) => {
   );
   const [count, setCount] = useState(0);
   const [countActionEdit, setCountActionEdit] = useState(0);
-  const [nameTeam, setNameTeam] = useState('');
-  const [typeTeam, setTypeTeam] = useState('');
-  const [descriptionTeam, setDescriptionTeam] = useState('');
   const [loading, setLoading] = useState(false);
   const [typesSelections, setTypesSelections] = useState([
     'Add',
@@ -30,14 +26,18 @@ const Pokemons = ({route, navigation}) => {
     'Edit',
     'Cancel',
   ]);
-  const [selectedIds, setSelectedIds] = useState(route.params?.screen === 'Dashboard' ? route.params?.team.pokemons.map(pokemon => pokemon.id) : []);
+  const [selectedIds, setSelectedIds] = useState(
+    route.params?.screen === 'Dashboard'
+      ? route.params?.team.pokemons.map(pokemon => pokemon.id)
+      : [],
+  );
   const [isEditing, setIsEditing] = useState();
 
   useEffect(() => {
     if (route.params?.location !== undefined) {
       getPokemons();
     }
-  }, [loading]);
+  }, [loading, pokemonsSelectedList]);
 
   const getPokemons = async () => {
     let urlsPokemons = new Promise(async (resolve, reject) => {
@@ -89,39 +89,6 @@ const Pokemons = ({route, navigation}) => {
     });
   };
 
-  const uploadTeam = async () => {
-    try {
-      setLoading(true);
-      let user = await auth().currentUser;
-
-      let team = {
-        id: Date.now(),
-        name: nameTeam,
-        type: typeTeam,
-        description: descriptionTeam,
-        pokemons: pokemonsSelectedList,
-        dataUser: {
-          name: user.displayName,
-          email: user.email,
-        },
-      };
-
-      teamsReference
-        .child(user.uid)
-        .child('teams')
-        .child(team.id)
-        .set({team})
-        .then(res => {
-          setLoading(false);
-          setPokemonsSelectedList([]);
-          setSelectedIds([]);
-          handlerShowBottomSheet();
-        });
-    } catch (error) {
-      console.log('ERROR EXECUTING ::: dataToUpload(): ', error);
-    }
-  };
-
   const handlerSelectPokemon = currentPokemon => {
     setCount(count + 1);
     pokemonsSelectedList.push(currentPokemon);
@@ -151,7 +118,7 @@ const Pokemons = ({route, navigation}) => {
   };
 
   const validatePokemonAdd = pokemon => {
-    if (count <= 2 && count <= 5) {
+    if (count < 5) {
       handlerSelectPokemon(pokemon);
     } else {
       handlerShowBottomSheet();
@@ -160,10 +127,12 @@ const Pokemons = ({route, navigation}) => {
 
   const handlerRemovePokemon = currentPokemon => {
     try {
+      console.log('POKEMONS ::: ', pokemonsSelectedList.length)
       let pokemonListUpdate = pokemonsSelectedList.filter(
         pokemon => pokemon.id !== currentPokemon.id,
       );
-      setSelectedIds(selectIds);
+      console.log('POKEMONS UPDATE ::: ', pokemonListUpdate.length)
+      setPokemonsSelectedList(pokemonListUpdate);
     } catch (error) {
       console.log('THIS IS THE ERROR :::  ', error);
     }
@@ -208,7 +177,9 @@ const Pokemons = ({route, navigation}) => {
                 {isCreatingTeam ? (
                   <Button
                     onPress={() => {
-                        eventOnSelectedItemPokemonButton(item);
+                      
+                      selectedIds.includes(item.id) ? handlerRemovePokemon(item) : eventOnSelectedItemPokemonButton(item)
+                      
                     }}
                     buttonStyle={
                       selectedIds.includes(item.id)
@@ -232,72 +203,6 @@ const Pokemons = ({route, navigation}) => {
     );
   };
 
-  const BottomSheet = () => {
-    return (
-      <View style={{flex: 1}}>
-        <Card StyleCustom={StylesBottomsheet}>
-          <View style={{flex: 1, width: '100%', alignItems: 'center'}}>
-            <Text
-              style={{
-                fontSize: 21,
-                fontWeight: 'bold',
-                color: Colors.WHITE_P,
-                marginTop: 8,
-              }}>
-              {route.params?.screen === 'Dashboard'
-                ? 'Edit your team'
-                : 'Create a team'}
-            </Text>
-
-            <View style={{width: '80%', justifyContent: 'space-around'}}>
-              <Input
-                placeholder="Name"
-                value={nameTeam}
-                containerStyle={{marginBottom: 8, borderTopEndRadius: 8}}
-                onChangeText={value => {
-                  setNameTeam(value);
-                }}
-              />
-
-              <Input
-                placeholder="Type"
-                value={typeTeam}
-                containerStyle={{marginBottom: 8}}
-                onChangeText={value => {
-                  setTypeTeam(value);
-                }}
-              />
-
-              <Input
-                placeholder="Description"
-                value={descriptionTeam}
-                containerStyle={{marginBottom: 8}}
-                onChangeText={value => {
-                  setDescriptionTeam(value);
-                }}
-              />
-            </View>
-
-            <Button
-              loading={loading}
-              disabled={loading}
-              onPress={() => {
-                if (route.params?.screen === 'Dashboard') {
-                  // Here call to make update team
-                  navigation.goBack();
-                } else {
-                  uploadTeam();
-                }
-              }}
-              title={route.params?.screen === 'Dashboard' ? 'Update' : 'Create'}
-              buttonStyle={{width: 200}}
-            />
-          </View>
-        </Card>
-      </View>
-    );
-  };
-
   return (
     <View style={{flex: 1, margin: 8}}>
       <FlatList
@@ -310,7 +215,18 @@ const Pokemons = ({route, navigation}) => {
       />
 
       {isBottomSheetShow ? (
-        <BottomSheet />
+        <BottomSheet
+          screen={route.params?.screen}
+          teamToUpdate={route.params?.team}
+          loading={loading}
+          navigation={navigation}
+          pokemonsSelectedList={pokemonsSelectedList}
+          setSelectedIds={setSelectedIds}
+          setPokemonsSelectedList={setPokemonsSelectedList}
+          handlerShowBottomSheet={handlerShowBottomSheet}
+          pokemonsSelectedList={pokemonsSelectedList}
+          setPokemonsSelectedList={setPokemonsSelectedList}
+        />
       ) : (
         <View>
           <Button
@@ -359,15 +275,6 @@ const CardStylesCustom = {
   backgroundColor: Colors.GREY_300,
   borderBottomEndRadius: 16,
   borderBottomStartRadius: 16,
-};
-
-const StylesBottomsheet = {
-  height: '100%',
-  backgroundColor: Colors.PINK_500,
-  borderTopEndRadius: 16,
-  borderTopStartRadius: 16,
-  marginStart: 16,
-  marginEnd: 16,
 };
 
 export default Pokemons;
