@@ -37,8 +37,7 @@ const Pokemons = ({route, navigation}) => {
     if (route.params?.location !== undefined) {
       getPokemons();
     }
-    console.log('TEAM PASS ::: ', route.params);
-  }, [count, loading]);
+  }, [loading]);
 
   const getPokemons = async () => {
     let urlsPokemons = new Promise(async (resolve, reject) => {
@@ -144,6 +143,7 @@ const Pokemons = ({route, navigation}) => {
     if (isCreatingTeam) {
       setIsCreatingTeam(false);
       setPokemonsSelectedList([]);
+      setSelectedIds([]);
       setCount(0);
     } else {
       setIsCreatingTeam(true);
@@ -160,12 +160,9 @@ const Pokemons = ({route, navigation}) => {
 
   const handlerRemovePokemon = currentPokemon => {
     try {
-      console.log('LEGHT POKEMONS SELECTED ::: ', pokemonsSelectedList.length);
       let pokemonListUpdate = pokemonsSelectedList.filter(
         pokemon => pokemon.id !== currentPokemon.id,
       );
-      // setPokemonsSelectedList(pokemonListUpdate);
-      console.log('LEGHT FILTERED ::: ', pokemonListUpdate.length);
       setSelectedIds(selectIds);
     } catch (error) {
       console.log('THIS IS THE ERROR :::  ', error);
@@ -175,9 +172,9 @@ const Pokemons = ({route, navigation}) => {
   const eventOnSelectedItemPokemonButton = currentPokemon => {
     try {
       validatePokemonAdd(currentPokemon);
-      var selectIds = [...selectedIds]; // clone state
+      var selectIds = [...selectedIds];
       if (selectedIds.includes(currentPokemon.id)) {
-        selectedIds = selectedIds.filter(_id => _id !== currentPokemonId);
+        // selectedIds = selectedIds.filter(_id => _id !== currentPokemonId);
       } else {
         selectIds.push(currentPokemon.id);
       }
