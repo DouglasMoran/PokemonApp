@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {View, Image, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {View, Image, Text, ActivityIndicator} from 'react-native';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
+import Styles from './styles/index';
 import {useNavigation} from '@react-navigation/native';
 import {
   GoogleSignin,
@@ -11,6 +12,7 @@ import {
 import auth from '@react-native-firebase/auth';
 
 const Login = () => {
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -25,7 +27,6 @@ const Login = () => {
   const getCredentialsCurrentUser = async tokenId => {
     try {
       const googleCredential = auth.GoogleAuthProvider.credential(tokenId);
-      console.log('THIS THE CREDENTIALS ::: ', googleCredential);
       auth().signInWithCredential(googleCredential);
       auth().onAuthStateChanged(user => {
         if (user) {
@@ -39,48 +40,60 @@ const Login = () => {
 
   const signIn = async () => {
     try {
+      setLoading(true);
       await GoogleSignin.hasPlayServices();
       const {accessToken, idToken} = await GoogleSignin.signIn();
       getCredentialsCurrentUser(idToken);
-      console.log('ACCESS TOKEN: ', accessToken, '  TOKEN ID ::: ', idToken);
     } catch (error) {
+      // Here below add alert with some error obtained
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
-        alert('Cancel');
+        // alert('Cancel');
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        alert('Signin in progress');
+        // alert('Signin in progress');
         // operation (f.e. sign in) is in progress already
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        alert('PLAY_SERVICES_NOT_AVAILABLE');
+        // alert('PLAY_SERVICES_NOT_AVAILABLE');
         // play services not available or outdated
       } else {
         // some other error happened
         console.log('THISIS THE OTHER ERROR ::: signIn :', error);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const navigateToHome = () => {
-    // Sign In successful navigate to Home
+    // Is Sign In successful? navigate to Home
     navigation.navigate('BottomNavigationHost');
   };
 
   return (
-    <View style={Style.container}>
+    <View style={Styles.container}>
       <Image
-        style={Style.logo}
+        style={Styles.logo}
         resizeMode="contain"
         source={require('@assets/images/poke_logo.png')}
       />
+
       <Card StyleCustom={CardStyleCustom}>
-        <View style={Style.childrenCard}>
-          <Text style={Style.textWelcome}>Welcome</Text>
-          <GoogleSigninButton
-            style={{width: 192, height: 48}}
-            size={GoogleSigninButton.Size.Wide}
-            color={GoogleSigninButton.Color.Dark}
-            onPress={signIn}
-          />
+        <View style={Styles.childrenCard}>
+          <Text style={Styles.textWelcome}>Welcome</Text>
+          {loading ? (
+            <ActivityIndicator
+              loading={loading}
+              size={70}
+              color={Colors.GREY_50}
+            />
+          ) : (
+            <GoogleSigninButton
+              style={Styles.buttonGoogle}
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Dark}
+              onPress={signIn}
+            />
+          )}
         </View>
       </Card>
     </View>
@@ -93,29 +106,5 @@ const CardStyleCustom = {
   borderTopEndRadius: 16,
   borderTopStartRadius: 16,
 };
-
-const Style = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  logo: {
-    width: '80%',
-    height: '20%',
-    alignSelf: 'center',
-    margin: 50,
-  },
-  textWelcome: {
-    fontSize: 52,
-    fontWeight: 'bold',
-    color: Colors.WHITE_P,
-    fontFamily: 'Montserrat-ExtraBold',
-  },
-  childrenCard: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-});
 
 export default Login;
