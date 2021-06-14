@@ -1,8 +1,9 @@
 import React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {Image} from 'react-native';
-import Colors from '@common/Colors'
+import Colors from '@common/Colors';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import DashboardScreen from '@pages/Dashboard';
 import ProfileScreen from '@pages/Profile';
 import HomeScreen from '@pages/Home';
@@ -11,13 +12,19 @@ const TabsBottomNavigation = () => {
   const Tab = createMaterialBottomTabNavigator();
   return (
     <Tab.Navigator
-      barStyle={{borderTopEndRadius: 24, borderTopStartRadius: 24}}>
+      inactiveColor="#000"
+      activeColor="#f0edf6"
+      barStyle={{
+        borderTopEndRadius: 24,
+        borderTopStartRadius: 24,
+        backgroundColor: Colors.PINK_500,
+      }}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
           tabBarIcon: ({color, size}) => (
-            <Image source={require('@assets/images/home.png')} style={{width: 24, height: 24}} />
+            <MaterialCommunityIcons name="home" color={color} size={26} />
           ),
         }}
       />
@@ -26,7 +33,7 @@ const TabsBottomNavigation = () => {
         component={DashboardScreen}
         options={{
           tabBarIcon: ({color, size}) => (
-            <Image source={require('@assets/images/dashboard.png')} style={{width: 24, height: 24}} />
+            <MaterialCommunityIcons name="cards" color={color} size={26} />
           ),
         }}
       />
@@ -35,7 +42,7 @@ const TabsBottomNavigation = () => {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({color, size}) => (
-            <Image source={require('@assets/images/user.png')} style={{width: 24, height: 24}} />
+            <MaterialCommunityIcons name="account" color={color} size={26} />
           ),
         }}
       />
