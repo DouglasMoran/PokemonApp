@@ -11,16 +11,21 @@ const Pokemons = ({route, navigation}) => {
   const [pokemons, setPokemons] = useState([]);
   const [isBottomSheetShow, setIsBottomSheetShow] = useState(false);
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
-  const [isPokemonSelected, setIsPokemonSelected] = useState(false);
   const [pokemonsSelectedList, setPokemonsSelectedList] = useState([]);
   const [count, setCount] = useState(0);
   const [nameTeam, setNameTeam] = useState('');
   const [typeTeam, setTypeTeam] = useState('');
   const [descriptionTeam, setDescriptionTeam] = useState('');
   const [loading, setLoading] = useState(false);
+  const [typesSelections, setTypesSelections] = useState([
+    'Add',
+    'Added',
+    'Remove',
+    'Edit',
+  ]);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   useEffect(() => {
-    // setLocation(route.params?.location);
     getPokemons();
   }, [count, loading]);
 
@@ -106,12 +111,10 @@ const Pokemons = ({route, navigation}) => {
 
   const handlerSelectPokemon = currentPokemon => {
     setCount(count + 1);
-    setIsPokemonSelected(true);
     pokemonsSelectedList.push(currentPokemon);
   };
 
   const handlerShowBottomSheet = async () => {
-    //HERE EXECUTE UPLOAD DATA TO FIREBASE AND FIRESTORE
     if (!loading) {
       if (isBottomSheetShow) {
         setIsBottomSheetShow(false);
@@ -134,7 +137,7 @@ const Pokemons = ({route, navigation}) => {
   };
 
   const validatePokemonAdd = pokemon => {
-    if (count < 5) {
+    if (count <= 5) {
       handlerSelectPokemon(pokemon);
     } else {
       handlerShowBottomSheet();
@@ -142,11 +145,18 @@ const Pokemons = ({route, navigation}) => {
   };
 
   const eventOnSelectedItemPokemonButton = currentPokemon => {
-    pokemons.map(pokemon => {
-      if (pokemon.name === currentPokemon.name) {
-        validatePokemonAdd(pokemon);
+    try {
+      validatePokemonAdd(currentPokemon);
+      var selectIds = [...selectedIds]; // clone state
+      if (selectedIds.includes(currentPokemon.id)) {
+        // selectedIds = selectedIds.filter(_id => _id !== currentPokemonId);
+      } else {
+        selectIds.push(currentPokemon.id);
       }
-    });
+      setSelectedIds(selectIds);
+    } catch (error) {
+      console.log('THIS IS THE ERROR :::  ', error);
+    }
   };
 
   const renderCardPokemon = ({item}) => {
@@ -175,8 +185,16 @@ const Pokemons = ({route, navigation}) => {
                     onPress={() => {
                       eventOnSelectedItemPokemonButton(item);
                     }}
-                    buttonStyle={{marginTop: 48, width: 100}}
-                    title={isPokemonSelected ? 'Added' : 'Add'}
+                    buttonStyle={
+                      selectedIds.includes(item.id)
+                        ? {
+                            marginTop: 48,
+                            width: 100,
+                            backgroundColor: Colors.GREEN_A200,
+                          }
+                        : {marginTop: 48, width: 100}
+                    }
+                    title={selectedIds.includes(item.id) ? 'Added' : 'Add'}
                   />
                 ) : (
                   <></>
@@ -253,6 +271,7 @@ const Pokemons = ({route, navigation}) => {
       <FlatList
         style={{flex: 1}}
         data={pokemons}
+        extraData={selectedIds}
         renderItem={renderCardPokemon}
         showsVerticalScrollIndicator={false}
         keyExtractor={pokemon => pokemon.id}
