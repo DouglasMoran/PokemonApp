@@ -21,7 +21,7 @@ const TabsBottomNavigation = () => {
         fontFamily: 'CourierPrime-Regular'
       }}>
       <Tab.Screen
-        name="Home"
+        name="Regions"
         component={HomeScreen}
         options={{
           tabBarIcon: ({color, size}) => (
@@ -30,7 +30,7 @@ const TabsBottomNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="Dashboard"
+        name="Teams"
         component={DashboardScreen}
         options={{
           tabBarIcon: ({color, size}) => (

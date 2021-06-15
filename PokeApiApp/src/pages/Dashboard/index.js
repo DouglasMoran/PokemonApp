@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
+import Styles from './styles/index';
+import {Button} from 'react-native-elements';
 import {useFocusEffect} from '@react-navigation/native';
 import {teamsReference} from '@config/firebase_config';
 import auth from '@react-native-firebase/auth';
@@ -103,23 +105,59 @@ const Dashboard = ({route, navigation}) => {
     navigation.navigate('Pokemons', {screen: 'Dashboard', team: currentTeam});
   };
 
+  const LayoutDefault = () => {
+    return (
+      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <Image
+          resizeMode="center"
+          style={{width: '100%', height: 300, marginEnd: 24, marginStart: 24}}
+          source={require('@assets/images/team_1.png')}
+        />
+        <Text
+          style={{
+            fontFamily: 'Montserrat-ExtraBold',
+            fontSize: 18,
+            marginTop: 32,
+          }}>
+          Hey, you do not have any teams!!
+        </Text>
+        <Text
+          style={{
+            fontFamily: 'CourierPrime-Bold',
+            fontSize: 21,
+            marginTop: 16,
+          }}>
+          What do yo await?
+        </Text>
+        <Button
+          title="Get starter"
+          titleStyle={{fontFamily: 'Montserrat-ExtraBold'}}
+          buttonStyle={{
+            width: 150,
+            height: 42,
+            backgroundColor: Colors.BLUE_A200,
+            alignItems: 'center',
+            marginTop: 24,
+          }}
+          onPress={() => navigation.navigate('Locations')}
+        />
+      </View>
+    );
+  };
+
   const renderCardTeam = ({item}) => {
-    console.log('TEAM :::  CURRENT ::::::: ', item);
+    console.log('TEAM :::  CURRENT ::::::: ', item.pokemons.length);
     return (
       <View>
         <Card StyleCustom={CardStylesCustom}>
-          <View style={{flex: 1, flexDirection: 'row', padding: 8}}>
-            <View style={{flex: 1}}>
-              <Text style={{fontSize: 18}}>{truncateStr(item.name, 20)}</Text>
-              <Text style={{fontSize: 16}}>{truncateStr(item.type, 20)}</Text>
+          <View style={Styles.child}>
+            <View style={Styles.containerData}>
+              <Text style={Styles.textName}>{truncateStr(item.name, 20)}</Text>
+              <Text style={Styles.textType}>{truncateStr(item.type, 20)}</Text>
               <Text>{truncateStr(item.description, 42)}</Text>
+              <Text>There are {item.pokemons.length} pokemons</Text>
             </View>
-            <View
-              style={{
-                width: 100,
-                justifyContent: 'space-around',
-                flexDirection: 'row',
-              }}>
+            <View style={Styles.containerButtonsActions}>
               <TouchableOpacity
                 onPress={() => handlerNavigateToPokemonsScreenForEdit(item)}>
                 <Image
@@ -135,7 +173,7 @@ const Dashboard = ({route, navigation}) => {
                 {isLoading ? (
                   <ActivityIndicator
                     animating={true}
-                    style={{width: 32, height: 32}}
+                    style={Styles.activityIndicator}
                     color={Colors.PINK_500}
                   />
                 ) : (
@@ -153,14 +191,18 @@ const Dashboard = ({route, navigation}) => {
   };
 
   return (
-    <View style={{flex: 1, margin: 8}}>
-      <FlatList
-        style={{flex: 1}}
-        data={teams}
-        renderItem={renderCardTeam}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={team => (team ? team.id : null)}
-      />
+    <View style={Styles.containerMain}>
+      {!teams ? (
+        <FlatList
+          style={{flex: 1}}
+          data={teams}
+          renderItem={renderCardTeam}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={team => (team ? team.id : null)}
+        />
+      ) : (
+        <LayoutDefault />
+      )}
     </View>
   );
 };
