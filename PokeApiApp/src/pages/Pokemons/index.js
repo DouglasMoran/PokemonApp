@@ -136,6 +136,18 @@ const Pokemons = ({route, navigation}) => {
     }
   };
 
+  const handlerRemovePokemonEditin = currentPokemonId => {
+    console.log('LEGTH POKEMONS LIST  ::: ', pokemonsSelectedList.length - 1);
+    if (pokemonsSelectedList.length < 4) {
+      console.log('NO PUEDE QUEDAR MENOR A 3 EL TEAM');
+    } else {
+      let teamPokemonsUpdated = pokemonsSelectedList.filter(
+        pokemon => pokemon.id !== currentPokemonId,
+      );
+      setPokemonsSelectedList(teamPokemonsUpdated);
+    }
+  };
+
   const handlerValidateSelctionOfTeamPokemons = () => {
     if (selectedIds.length < 3) {
       console.log('FALTA');
@@ -154,6 +166,7 @@ const Pokemons = ({route, navigation}) => {
         console.log('POKEMON ::: ', pokemon.name, ' ID ::: ', pokemon.id),
       );
       setPokemonsSelectedList(pokemonsSelctedsTmp);
+      handlerShowBottomSheet();
     }
   };
 
@@ -172,7 +185,12 @@ const Pokemons = ({route, navigation}) => {
                 <Text style={Styles.textSpeciesName}>{item.species.name}</Text>
                 {isCreatingTeam ? (
                   <Button
-                    onPress={() => handlerSelectPokemon(item)}
+                    onPress={() => {
+                      handlerSelectPokemon(item);
+                      if (route.params?.screen === 'Dashboard') {
+                        handlerRemovePokemonEditin(item.id);
+                      }
+                    }}
                     buttonStyle={
                       selectedIds.includes(item.id)
                         ? {
@@ -199,14 +217,29 @@ const Pokemons = ({route, navigation}) => {
     <View style={{flex: 1, margin: 8}}>
       <FlatList
         style={{flex: 1}}
-        data={pokemons}
+        data={route.params?.screen ? pokemonsSelectedList : pokemons}
         extraData={selectedIds}
         renderItem={renderCardPokemon}
         showsVerticalScrollIndicator={false}
         keyExtractor={pokemon => pokemon.id}
       />
 
-      {isCreatingTeam ? (
+      {!isCreatingTeam ? (
+        <Button
+          title="Create team"
+          titleStyle={{fontFamily: 'CourierPrime-Bold', fontSize: 21}}
+          buttonStyle={{
+            borderRadius: 8,
+            height: 50,
+            backgroundColor: Colors.BLUE_A200,
+          }}
+          onPress={() => handlerShowViewsCreatingOrEditing()}
+        />
+      ) : (
+        <></>
+      )}
+
+      {isCreatingTeam && !isBottomSheetShow ? (
         <View
           style={{
             flexDirection: 'row',
@@ -222,7 +255,7 @@ const Pokemons = ({route, navigation}) => {
               borderRadius: 8,
               height: 50,
             }}
-            title={`Cancel (${pokemonsSelectedList.length}/6)`}
+            title={`Cancel (${selectedIds.length}/6)`}
           />
           {/* Cancel operation */}
           <Button
@@ -238,16 +271,7 @@ const Pokemons = ({route, navigation}) => {
           />
         </View>
       ) : (
-        <Button
-          title="Create team"
-          titleStyle={{fontFamily: 'CourierPrime-Bold', fontSize: 21}}
-          buttonStyle={{
-            borderRadius: 8,
-            height: 50,
-            backgroundColor: Colors.BLUE_A200,
-          }}
-          onPress={() => handlerShowViewsCreatingOrEditing()}
-        />
+        <></>
       )}
 
       {isBottomSheetShow ? (
