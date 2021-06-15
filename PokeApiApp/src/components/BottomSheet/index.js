@@ -16,9 +16,15 @@ const BottomSheetComponent = ({
   setSelectedIds,
   navigation,
 }) => {
-  const [nameTeam, setNameTeam] = useState(screen === 'Dashboard' ? teamToUpdate.name : '');
-  const [typeTeam, setTypeTeam] = useState(screen === 'Dashboard' ? teamToUpdate.type : '');
-  const [descriptionTeam, setDescriptionTeam] = useState(screen === 'Dashboard' ? teamToUpdate.description : '');
+  const [nameTeam, setNameTeam] = useState(
+    screen === 'Dashboard' ? teamToUpdate.name : '',
+  );
+  const [typeTeam, setTypeTeam] = useState(
+    screen === 'Dashboard' ? teamToUpdate.type : '',
+  );
+  const [descriptionTeam, setDescriptionTeam] = useState(
+    screen === 'Dashboard' ? teamToUpdate.description : '',
+  );
   const [_loading, _setLoading] = useState(false);
 
   // ref
@@ -26,14 +32,6 @@ const BottomSheetComponent = ({
 
   // variables
   const snapPoints = useMemo(() => ['100%', '100%'], []);
-
-  useEffect(() => {
-    pokemonsSelectedList.map((pokemon) => {
-      console.log('LEGHT OF THE LIST ::: IN BOTTOM SHEE FOR UPDATE DATA', pokemonsSelectedList.length)
-    })
-
-  },[])
-
 
   // callbacks
   const handleSheetChanges = useCallback(index => {
@@ -43,41 +41,36 @@ const BottomSheetComponent = ({
   }, []);
 
   const handlerUpdateTeam = teamToUpdate => {
-    if(teamToUpdate) {
-      try {
-        _setLoading(true);
-  
-        console.log('DATA META ::: ', nameTeam)
-        let newDataTeam = {
-          id: teamToUpdate.id,
-          name: nameTeam,
-          lastUpdate: Date.now(),
-          type: typeTeam,
-          description: descriptionTeam,
-          pokemons: pokemonsSelectedList,
-          dataUser: {
-            name: teamToUpdate.dataUser.name,
-            email: teamToUpdate.dataUser.email,
-          },
-        }
-  
-        teamsReference
-          .child(auth().currentUser.uid)
-          .child('teams')
-          .child(teamToUpdate.id)
-          .update(newDataTeam)
-          .then(() => {
-            console.log('TEAM UPDATE SUCCESSFUL!!');
-            _setLoading(false);
-            navigation.goBack();
-          });
-      } catch (error) {
-        console.log('ERROR ::: handlerDelete() : ', error);
-      }
-    } else {
-      console.log('ESTA EN MODO CREATE')
+    try {
+      _setLoading(true);
+
+      console.log('DATA META ::: ', nameTeam);
+      let newDataTeam = {
+        id: teamToUpdate.id,
+        name: nameTeam,
+        lastUpdate: Date.now(),
+        type: typeTeam,
+        description: descriptionTeam,
+        pokemons: pokemonsSelectedList,
+        dataUser: {
+          name: teamToUpdate.dataUser.name,
+          email: teamToUpdate.dataUser.email,
+        },
+      };
+
+      teamsReference
+        .child(auth().currentUser.uid)
+        .child('teams')
+        .child(teamToUpdate.id)
+        .set(newDataTeam)
+        .then(() => {
+          console.log('TEAM UPDATE SUCCESSFUL!!');
+          _setLoading(false);
+          navigation.goBack();
+        });
+    } catch (error) {
+      console.log('ERROR ::: handlerDelete() : ', error);
     }
-    
   };
 
   const handleUploadTeam = async () => {
@@ -102,13 +95,13 @@ const BottomSheetComponent = ({
         .child(user.uid)
         .child('teams')
         .child(team.id)
-        .set({team})
+        .set(team)
         .then(res => {
           _setLoading(false);
           setPokemonsSelectedList([]);
           setSelectedIds([]);
           handlerShowBottomSheet();
-          console.log('TEAM CREATE SUCCESSFUL!!')
+          console.log('TEAM CREATE SUCCESSFUL!!');
         });
     } catch (error) {
       console.log('ERROR EXECUTING ::: dataToUpload(): ', error);

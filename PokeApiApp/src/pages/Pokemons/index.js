@@ -90,11 +90,6 @@ const Pokemons = ({route, navigation}) => {
     });
   };
 
-  // const handlerSelectPokemon = currentPokemon => {
-  //   setCount(count + 1);
-  //   pokemonsSelectedList.push(currentPokemon);
-  // };
-
   const handlerShowBottomSheet = async () => {
     if (!loading) {
       if (isBottomSheetShow) {
@@ -137,7 +132,6 @@ const Pokemons = ({route, navigation}) => {
   };
 
   const handlerRemovePokemonEditin = currentPokemonId => {
-    console.log('LEGTH POKEMONS LIST  ::: ', pokemonsSelectedList.length - 1);
     if (pokemonsSelectedList.length < 4) {
       console.log('NO PUEDE QUEDAR MENOR A 3 EL TEAM');
     } else {
@@ -162,9 +156,6 @@ const Pokemons = ({route, navigation}) => {
           }
         });
       });
-      pokemonsSelctedsTmp.map(pokemon =>
-        console.log('POKEMON ::: ', pokemon.name, ' ID ::: ', pokemon.id),
-      );
       setPokemonsSelectedList(pokemonsSelctedsTmp);
       handlerShowBottomSheet();
     }

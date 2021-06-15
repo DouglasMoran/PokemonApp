@@ -29,28 +29,10 @@ const Dashboard = ({route, navigation}) => {
   );
 
   useEffect(() => {
-    if(teams === undefined) {
+    if (teams === undefined) {
       getDataTeamsGeneral();
     }
-    console.log('TEAMS :: ', teams)
   }, []);
-
-  const setTeamsOfCurrentUser = list => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let listTeamsTmp = [];
-        list.map(teams => {
-          let responseDataTeam = Object.values(teams);
-          responseDataTeam.map(item => {
-            listTeamsTmp.push(item.team);
-          });
-        });
-        resolve(listTeamsTmp);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  };
 
   const getDataTeamsGeneral = async () => {
     let dataResponse = new Promise(async (resolve, reject) => {
@@ -72,13 +54,23 @@ const Dashboard = ({route, navigation}) => {
     });
 
     dataResponse.then(async dataRes => {
-      let teams = await setTeamsOfCurrentUser(dataRes);
-      setTeams(teams);
+      let listTmp = dataRes;
+      getTeams(listTmp);
     });
   };
 
+  const getTeams = dataList => {
+    let listTeamsTmp = [];
+    dataList.map(team => {
+      let responseDataTeam = Object.values(team);
+      responseDataTeam.map(item => {
+        listTeamsTmp.push(item);
+      });
+    });
+    setTeams(listTeamsTmp);
+  };
+
   const handlerOnButtonDelete = currentTeam => {
-    console.log('CURRENT TEAM ::: ', currentTeam.name)
     teams.map(team => {
       if (team.id === currentTeam.id) {
         handlerDelete(currentTeam.id);
@@ -94,12 +86,17 @@ const Dashboard = ({route, navigation}) => {
         .child(currentTeamId)
         .set(null)
         .then(() => {
-          console.log('DELETE SUCCESSFUL!!');
-          setLoading(false);
+          console.log('DELETE SUCCESSFUL!! ');
+          refreshTeamList(currentTeamId);
         });
     } catch (error) {
       console.log('ERROR ::: handlerDelete() : ', error);
     }
+  };
+
+  const refreshTeamList = currentTeamId => {
+    let updateTeamsList = teams.filter(team => team.id !== currentTeamId);
+    setTeams(updateTeamsList);
   };
 
   const handlerNavigateToPokemonsScreenForEdit = currentTeam => {
@@ -107,7 +104,7 @@ const Dashboard = ({route, navigation}) => {
   };
 
   const renderCardTeam = ({item}) => {
-    console.log('TEAM :::  CURRENT ::::::: ', item)
+    console.log('TEAM :::  CURRENT ::::::: ', item);
     return (
       <View>
         <Card StyleCustom={CardStylesCustom}>
@@ -115,9 +112,7 @@ const Dashboard = ({route, navigation}) => {
             <View style={{flex: 1}}>
               <Text style={{fontSize: 18}}>{truncateStr(item.name, 20)}</Text>
               <Text style={{fontSize: 16}}>{truncateStr(item.type, 20)}</Text>
-              <Text>
-                {truncateStr(item.description, 42)}
-              </Text>
+              <Text>{truncateStr(item.description, 42)}</Text>
             </View>
             <View
               style={{
@@ -135,13 +130,11 @@ const Dashboard = ({route, navigation}) => {
 
               <TouchableOpacity
                 onPress={() => {
-                  // setLoading(false);
                   handlerOnButtonDelete(item);
                 }}>
                 {isLoading ? (
                   <ActivityIndicator
                     animating={true}
-                    onPress={() => handlerOn}
                     style={{width: 32, height: 32}}
                     color={Colors.PINK_500}
                   />
@@ -166,7 +159,7 @@ const Dashboard = ({route, navigation}) => {
         data={teams}
         renderItem={renderCardTeam}
         showsVerticalScrollIndicator={false}
-        keyExtractor={team => team ? team.id : null}
+        keyExtractor={team => (team ? team.id : null)}
       />
     </View>
   );
