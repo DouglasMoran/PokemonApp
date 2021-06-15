@@ -6,6 +6,8 @@ the feature addeds are that you can make a teams of pokemons that you encounter 
 and apply operations like create, read, update and delete.
 
 
+Note: The version for iOS not is available for that I don't have a enviroment development for test the feature in this OS.
+
 
 I believe that i make a best version of this app in the futere, 
 I never been play the pokemon game this challenge really was interested.
