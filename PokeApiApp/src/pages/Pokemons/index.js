@@ -90,10 +90,10 @@ const Pokemons = ({route, navigation}) => {
     });
   };
 
-  const handlerSelectPokemon = currentPokemon => {
-    setCount(count + 1);
-    pokemonsSelectedList.push(currentPokemon);
-  };
+  // const handlerSelectPokemon = currentPokemon => {
+  //   setCount(count + 1);
+  //   pokemonsSelectedList.push(currentPokemon);
+  // };
 
   const handlerShowBottomSheet = async () => {
     if (!loading) {
@@ -107,7 +107,7 @@ const Pokemons = ({route, navigation}) => {
     }
   };
 
-  const handlerCreateAndCancel = () => {
+  const handlerShowViewsCreatingOrEditing = () => {
     if (isCreatingTeam) {
       setIsCreatingTeam(false);
       setPokemonsSelectedList([]);
@@ -118,42 +118,42 @@ const Pokemons = ({route, navigation}) => {
     }
   };
 
-  const validatePokemonAdd = pokemon => {
-    if (count < 5) {
-      handlerSelectPokemon(pokemon);
-    } else {
-      handlerShowBottomSheet();
-    }
+  const handlerNextButton = () => {
+    handlerValidateSelctionOfTeamPokemons();
   };
 
-  const handlerRemovePokemon = currentPokemon => {
+  const handlerSelectPokemon = currentPokemon => {
     try {
-      console.log('POKEMONS ::: ', pokemonsSelectedList.length);
-      let pokemonListUpdate = pokemonsSelectedList.filter(
-        pokemon => pokemon.id !== currentPokemon.id,
-      );
-      console.log('POKEMONS UPDATE ::: ', pokemonListUpdate.length);
-      setPokemonsSelectedList(pokemonListUpdate);
-      if(route.params?.screen === 'Dashboard') {
-        setPokemons(pokemonListUpdate);
-      }
-    } catch (error) {
-      console.log('THIS IS THE ERROR :::  ', error);
-    }
-  };
-
-  const eventOnSelectedItemPokemonButton = currentPokemon => {
-    try {
-      validatePokemonAdd(currentPokemon);
       var selectIds = [...selectedIds];
-      if (selectedIds.includes(currentPokemon.id)) {
-        // selectedIds = selectedIds.filter(_id => _id !== currentPokemonId);
+      if (selectIds.includes(currentPokemon.id)) {
+        selectIds = selectIds.filter(_id => _id !== currentPokemon.id);
       } else {
         selectIds.push(currentPokemon.id);
       }
       setSelectedIds(selectIds);
     } catch (error) {
-      console.log('THIS IS THE ERROR :::  ', error);
+      console.log('ERROR IN : handlerSelctPokemon() : ', error);
+    }
+  };
+
+  const handlerValidateSelctionOfTeamPokemons = () => {
+    if (selectedIds.length < 3) {
+      console.log('FALTA');
+    } else if (selectedIds.length > 6) {
+      console.log('Mucho');
+    } else {
+      let pokemonsSelctedsTmp = [];
+      pokemons.map(pokemon => {
+        selectedIds.map(idPokemonSelctedTmp => {
+          if (pokemon.id === idPokemonSelctedTmp) {
+            pokemonsSelctedsTmp.push(pokemon);
+          }
+        });
+      });
+      pokemonsSelctedsTmp.map(pokemon =>
+        console.log('POKEMON ::: ', pokemon.name, ' ID ::: ', pokemon.id),
+      );
+      setPokemonsSelectedList(pokemonsSelctedsTmp);
     }
   };
 
@@ -172,11 +172,7 @@ const Pokemons = ({route, navigation}) => {
                 <Text style={Styles.textSpeciesName}>{item.species.name}</Text>
                 {isCreatingTeam ? (
                   <Button
-                    onPress={() => {
-                      selectedIds.includes(item.id)
-                        ? handlerRemovePokemon(item)
-                        : eventOnSelectedItemPokemonButton(item);
-                    }}
+                    onPress={() => handlerSelectPokemon(item)}
                     buttonStyle={
                       selectedIds.includes(item.id)
                         ? {
@@ -210,13 +206,61 @@ const Pokemons = ({route, navigation}) => {
         keyExtractor={pokemon => pokemon.id}
       />
 
+      {isCreatingTeam ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            paddingTop: 16,
+            paddingBottom: 16,
+          }}>
+          <Button
+            onPress={() => handlerShowViewsCreatingOrEditing()}
+            type="outline"
+            titleStyle={{fontFamily: 'CourierPrime-Bold', fontSize: 21}}
+            buttonStyle={{
+              borderRadius: 8,
+              height: 50,
+            }}
+            title={`Cancel (${pokemonsSelectedList.length}/6)`}
+          />
+          {/* Cancel operation */}
+          <Button
+            titleStyle={{fontFamily: 'CourierPrime-Bold', fontSize: 21}}
+            buttonStyle={{
+              borderRadius: 8,
+              height: 50,
+              width: 120,
+              backgroundColor: Colors.PINK_500,
+            }}
+            title="Next"
+            onPress={() => handlerNextButton()}
+          />
+        </View>
+      ) : (
+        <Button
+          title="Create team"
+          titleStyle={{fontFamily: 'CourierPrime-Bold', fontSize: 21}}
+          buttonStyle={{
+            borderRadius: 8,
+            height: 50,
+            backgroundColor: Colors.BLUE_A200,
+          }}
+          onPress={() => handlerShowViewsCreatingOrEditing()}
+        />
+      )}
+
       {isBottomSheetShow ? (
         <BottomSheet
           screen={route.params?.screen}
           teamToUpdate={route.params?.team}
           loading={loading}
           navigation={navigation}
-          pokemonsSelectedList={route.params?.screen === 'Dashboard' ? pokemons : pokemonsSelectedList}
+          pokemonsSelectedList={
+            route.params?.screen === 'Dashboard'
+              ? pokemons
+              : pokemonsSelectedList
+          }
           setSelectedIds={setSelectedIds}
           setPokemonsSelectedList={setPokemonsSelectedList}
           handlerShowBottomSheet={handlerShowBottomSheet}
@@ -224,43 +268,7 @@ const Pokemons = ({route, navigation}) => {
           setPokemonsSelectedList={setPokemonsSelectedList}
         />
       ) : (
-        <View>
-          <Button
-            onPress={() => {
-              if (route.params?.screen === 'Dashboard') {
-                handlerShowBottomSheet();
-              } else {
-                handlerCreateAndCancel();
-              }
-            }}
-            titleStyle={{fontSize: 21}}
-            buttonStyle={{
-              borderTopEndRadius: 0,
-              borderTopStartRadius: 0,
-              borderBottomStartRadius: 16,
-              borderBottomEndRadius: 16,
-              height: 70,
-              marginEnd: 8,
-              marginStart: 8,
-              backgroundColor: isCreatingTeam
-                ? Colors.PINK_900
-                : Colors.BLUE_A200,
-            }}
-            title={
-              isCreatingTeam
-                ? `${
-                    route.params?.screen === 'Dashboard'
-                      ? 'Next'
-                      : `Cancel (${count}/6)`
-                  } `
-                : `${
-                    route.params?.screen === 'Dashboard'
-                      ? 'Edit Team'
-                      : 'Create Team'
-                  }`
-            }
-          />
-        </View>
+        <></>
       )}
     </View>
   );
