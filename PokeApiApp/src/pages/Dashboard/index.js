@@ -146,43 +146,48 @@ const Dashboard = ({route, navigation}) => {
   };
 
   const renderCardTeam = ({item}) => {
-    console.log('TEAM :::  CURRENT ::::::: ', item.pokemons.length);
     return (
       <View>
         <Card StyleCustom={CardStylesCustom}>
-          <View style={Styles.child}>
+          <View style={Styles.containerChildCard}>
             <View style={Styles.containerData}>
               <Text style={Styles.textName}>{truncateStr(item.name, 20)}</Text>
               <Text style={Styles.textType}>{truncateStr(item.type, 20)}</Text>
-              <Text>{truncateStr(item.description, 42)}</Text>
-              <Text>There are {item.pokemons.length} pokemons</Text>
+              <Text style={Styles.textDescription}>
+                {truncateStr(item.description, 100)}
+              </Text>
             </View>
-            <View style={Styles.containerButtonsActions}>
-              <TouchableOpacity
-                onPress={() => handlerNavigateToPokemonsScreenForEdit(item)}>
-                <Image
-                  source={require('@assets/images/edit.png')}
-                  style={{width: 24, height: 24}}
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  handlerOnButtonDelete(item);
-                }}>
-                {isLoading ? (
-                  <ActivityIndicator
-                    animating={true}
-                    style={Styles.activityIndicator}
-                    color={Colors.PINK_500}
-                  />
-                ) : (
+            <View style={Styles.containerButtonsText}>
+              <Text style={Styles.textPokemonsL}>
+                {item.pokemons.length} pokemons
+              </Text>
+              <View style={Styles.containerButtonsActions}>
+                <TouchableOpacity
+                  onPress={() => handlerNavigateToPokemonsScreenForEdit(item)}>
                   <Image
-                    source={require('@assets/images/trasher.png')}
+                    source={require('@assets/images/edit.png')}
                     style={{width: 24, height: 24}}
                   />
-                )}
-              </TouchableOpacity>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    handlerOnButtonDelete(item);
+                  }}>
+                  {isLoading ? (
+                    <ActivityIndicator
+                      animating={true}
+                      style={Styles.activityIndicator}
+                      color={Colors.PINK_500}
+                    />
+                  ) : (
+                    <Image
+                      source={require('@assets/images/trasher.png')}
+                      style={{width: 24, height: 24}}
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Card>
@@ -192,7 +197,10 @@ const Dashboard = ({route, navigation}) => {
 
   return (
     <View style={Styles.containerMain}>
-      {!teams ? (
+      {console.log('ESTA :::: ', teams.length === 0)}
+      {teams.length === 0 ? (
+        <LayoutDefault />
+      ) : (
         <FlatList
           style={{flex: 1}}
           data={teams}
@@ -200,16 +208,13 @@ const Dashboard = ({route, navigation}) => {
           showsVerticalScrollIndicator={false}
           keyExtractor={team => (team ? team.id : null)}
         />
-      ) : (
-        <LayoutDefault />
       )}
     </View>
   );
 };
 
 const CardStylesCustom = {
-  height: 100,
-  backgroundColor: Colors.GREY_300,
+  height: 200,
   borderBottomEndRadius: 16,
   borderBottomStartRadius: 16,
   marginTop: 8,
