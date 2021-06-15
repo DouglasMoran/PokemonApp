@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, ActivityIndicator} from 'react-native';
+import Orientation from 'react-native-orientation';
 import {Button, Image} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
@@ -13,6 +14,7 @@ const Profile = ({navigation}) => {
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
+    Orientation.lockToPortrait();
     getUser();
   }, []);
 

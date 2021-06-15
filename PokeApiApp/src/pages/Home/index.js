@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, FlatList, TouchableOpacity} from 'react-native';
+import Orientation from 'react-native-orientation';
 import Card from '@components/Card';
 import {getPokemonsRegions} from '@services/pokemonsService';
 import Colors from '@common/Colors';
@@ -10,6 +11,7 @@ const Home = ({navigation}) => {
   const [pokemonsRegions, setPokemonsRegions] = useState([]);
 
   useEffect(() => {
+    Orientation.lockToPortrait();
     getRegions();
   }, []);
 

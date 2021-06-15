@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
+import Orientation from 'react-native-orientation';
 import Styles from './styles/index';
 import {Button} from 'react-native-elements';
 import {useFocusEffect} from '@react-navigation/native';
@@ -24,9 +25,11 @@ const Dashboard = ({route, navigation}) => {
 
   useFocusEffect(
     React.useCallback(() => {
+      Orientation.lockToPortrait();
       const task = InteractionManager.runAfterInteractions(() => {
         getDataTeamsGeneral();
       });
+
       return () => task.cancel();
     }, []),
   );

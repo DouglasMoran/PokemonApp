@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import Orientation from 'react-native-orientation';
 import {Button} from 'react-native-elements';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
@@ -42,6 +43,7 @@ const Pokemons = ({route, navigation}) => {
   );
 
   useEffect(() => {
+    Orientation.lockToPortrait();
     if (route.params?.location !== undefined) {
       getPokemons();
     }

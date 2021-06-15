@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, Image, Text, ActivityIndicator} from 'react-native';
+import Orientation from 'react-native-orientation';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
 import Styles from './styles/index';
@@ -16,6 +17,7 @@ const Login = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
+    Orientation.lockToPortrait();
     GoogleSignin.configure({
       scopes: ['email'], // what API you want to access on behalf of the user, default is email and profile
       webClientId:
