@@ -1,5 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Image, FlatList, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import {Button} from 'react-native-elements';
 import Card from '@components/Card';
 import Colors from '@common/Colors';
@@ -133,7 +140,7 @@ const Pokemons = ({route, navigation}) => {
 
   const handlerRemovePokemonEditin = currentPokemonId => {
     if (pokemonsSelectedList.length < 4) {
-      console.log('NO PUEDE QUEDAR MENOR A 3 EL TEAM');
+      Alert.alert('Awaite!', 'Your team not be less that 3 pokemons');
     } else {
       let teamPokemonsUpdated = pokemonsSelectedList.filter(
         pokemon => pokemon.id !== currentPokemonId,

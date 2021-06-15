@@ -4,6 +4,7 @@ import {
   Text,
   FlatList,
   Image,
+  Alert,
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
@@ -88,7 +89,7 @@ const Dashboard = ({route, navigation}) => {
         .child(currentTeamId)
         .set(null)
         .then(() => {
-          console.log('DELETE SUCCESSFUL!! ');
+          Alert.alert('Delete Team', 'We delete team successful!!');
           refreshTeamList(currentTeamId);
         });
     } catch (error) {

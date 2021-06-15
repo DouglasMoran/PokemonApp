@@ -1,5 +1,5 @@
-import React, {useCallback, useMemo, useRef, useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TextInput} from 'react-native';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {View, Text, Alert} from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import Colors from '@common/Colors';
 import {Button, Input} from 'react-native-elements';
@@ -64,7 +64,7 @@ const BottomSheetComponent = ({
         .child(teamToUpdate.id)
         .set(newDataTeam)
         .then(() => {
-          console.log('TEAM UPDATE SUCCESSFUL!!');
+          Alert.alert('Update Team', 'We update the team successful!!');
           _setLoading(false);
           navigation.goBack();
         });
@@ -101,7 +101,7 @@ const BottomSheetComponent = ({
           setPokemonsSelectedList([]);
           setSelectedIds([]);
           handlerShowBottomSheet();
-          console.log('TEAM CREATE SUCCESSFUL!!');
+          Alert.alert('Create Team', 'We create team successful!!');
         });
     } catch (error) {
       console.log('ERROR EXECUTING ::: dataToUpload(): ', error);
