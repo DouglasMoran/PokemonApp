@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, ActivityIndicator} from 'react-native';
+import {View, Text, ActivityIndicator, LogBox} from 'react-native';
 import Orientation from 'react-native-orientation';
 import {Button, Image} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
@@ -14,6 +14,7 @@ const Profile = ({navigation}) => {
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
+    LogBox.ignoreAllLogs();//Ignore all log notifications
     Orientation.lockToPortrait();
     getUser();
   }, []);

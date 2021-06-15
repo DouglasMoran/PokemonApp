@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Alert,
+  LogBox
 } from 'react-native';
 import Orientation from 'react-native-orientation';
 import {Button} from 'react-native-elements';
@@ -43,6 +44,7 @@ const Pokemons = ({route, navigation}) => {
   );
 
   useEffect(() => {
+    LogBox.ignoreAllLogs();
     Orientation.lockToPortrait();
     if (route.params?.location !== undefined) {
       getPokemons();

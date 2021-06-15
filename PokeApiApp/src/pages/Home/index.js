@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, FlatList, TouchableOpacity} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity, LogBox} from 'react-native';
 import Orientation from 'react-native-orientation';
 import Card from '@components/Card';
 import {getPokemonsRegions} from '@services/pokemonsService';
@@ -11,6 +11,7 @@ const Home = ({navigation}) => {
   const [pokemonsRegions, setPokemonsRegions] = useState([]);
 
   useEffect(() => {
+    LogBox.ignoreAllLogs();
     Orientation.lockToPortrait();
     getRegions();
   }, []);

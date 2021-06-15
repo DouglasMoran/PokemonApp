@@ -7,6 +7,7 @@ import {
   Alert,
   TouchableOpacity,
   ActivityIndicator,
+  LogBox,
 } from 'react-native';
 import Orientation from 'react-native-orientation';
 import Styles from './styles/index';
@@ -25,6 +26,7 @@ const Dashboard = ({route, navigation}) => {
 
   useFocusEffect(
     React.useCallback(() => {
+      LogBox.ignoreAllLogs();
       Orientation.lockToPortrait();
       const task = InteractionManager.runAfterInteractions(() => {
         getDataTeamsGeneral();
