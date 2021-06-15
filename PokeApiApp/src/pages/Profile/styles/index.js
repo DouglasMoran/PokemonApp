@@ -15,14 +15,19 @@ export default StyleSheet.create({
     borderRadius: 100,
     marginTop: 24,
   },
+  titleButtonSignOut: {
+    fontFamily: 'CourierPrime-Bold',
+  },
   textName: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat-ExtraBold',
     marginTop: 24,
     textAlign: 'center',
   },
   textEmail: {
     textAlign: 'center',
+    fontFamily: 'CourierPrime-Bold',
+    marginTop: 8,
   },
   buttonSignOut: {
     marginTop: 200,

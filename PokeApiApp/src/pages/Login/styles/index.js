@@ -1,6 +1,5 @@
 import {StyleSheet} from 'react-native';
 import Colors from '@common/Colors';
-
 export default StyleSheet.create({
   container: {
     flex: 1,
@@ -14,7 +13,6 @@ export default StyleSheet.create({
   },
   textWelcome: {
     fontSize: 52,
-    fontWeight: 'bold',
     color: Colors.WHITE_P,
     fontFamily: 'Montserrat-ExtraBold',
   },

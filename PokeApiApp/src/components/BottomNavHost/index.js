@@ -18,6 +18,7 @@ const TabsBottomNavigation = () => {
         borderTopEndRadius: 24,
         borderTopStartRadius: 24,
         backgroundColor: Colors.PINK_500,
+        fontFamily: 'CourierPrime-Regular'
       }}>
       <Tab.Screen
         name="Home"

@@ -71,6 +71,7 @@ const Profile = ({navigation}) => {
           <Button
             type="clear"
             onPress={() => signOut()}
+            titleStyle={Styles.titleButtonSignOut}
             buttonStyle={Styles.buttonSignOut}
             color={Colors.GREEN_A200}
             title="Sign Out"

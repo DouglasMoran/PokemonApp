@@ -18,6 +18,6 @@ export default StyleSheet.create({
   },
   regionName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat-ExtraBold'
   },
 });
